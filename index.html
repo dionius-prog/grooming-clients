@@ -18,7 +18,8 @@
   :root{
     --bg:#0d1016; --panel:#1b2029; --panel2:#232a35; --line:#2a3341;
     --text:#e8edf5; --muted:#8b97a8;
-    --accent:#4c8dff; --ok:#2fbf71; --bad:#e5484d;
+    --accent:#4c8dff; --ok:#2fbf71; --bad:#e5484d; --money:#ffd166;
+    --purple:#a78bfa; --teal:#7ee0e6; --orange:#ffa58c;
   }
   *{box-sizing:border-box}
   body{
@@ -69,34 +70,52 @@
   .form-actions{display:flex;gap:10px;margin-top:16px}
   .form-actions button{flex:1}
 
-  .sort-row{
-    display:flex;gap:8px;margin-bottom:4px;
-  }
-  .sort-btn{
-    flex:1;
-    background:var(--panel2);
-    border:1px solid var(--line);
-    color:var(--muted);
-    padding:10px 12px;
-    border-radius:12px;
-    font-size:13px;
-    font-weight:600;
-    transition:.15s;
+  /* ====== переключатели с выпадающими списками ====== */
+  .tools-row{display:flex;gap:8px;margin-bottom:6px;position:relative;z-index:15}
+  .dropdown-wrap{flex:1;position:relative;min-width:0}
+  .tool-btn{
+    width:100%;background:var(--panel2);border:1px solid var(--line);
+    color:var(--muted);padding:11px 12px;border-radius:12px;
+    font-size:13px;font-weight:600;transition:.15s;
     display:flex;align-items:center;justify-content:center;gap:6px;
+    cursor:pointer;font-family:inherit;white-space:nowrap;
   }
-  .sort-btn:hover{filter:brightness(1.15)}
-  .sort-btn.active{
-    background:#243046;
-    color:#9dc0ff;
-    border-color:var(--accent);
+  .tool-btn:hover{filter:brightness(1.15)}
+  .dropdown-wrap.open .tool-btn{background:#243046;color:#9dc0ff;border-color:var(--accent)}
+  .tool-btn .arrow{font-size:9px;opacity:.7;transition:transform .2s}
+  .dropdown-wrap.open .tool-btn .arrow{transform:rotate(180deg)}
+
+  .dd-menu{
+    position:absolute;top:calc(100% + 6px);left:0;right:0;
+    background:#1e242e;border:1px solid var(--line);border-radius:12px;
+    padding:6px;z-index:60;
+    box-shadow:0 16px 40px rgba(0,0,0,.55);
+    max-height:340px;overflow-y:auto;display:none;
   }
+  .dropdown-wrap.open .dd-menu{display:block;animation:dropIn .15s ease-out}
+  @keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .dd-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:8px;cursor:pointer;transition:.1s;
+  }
+  .dd-item:hover{background:#2a3341}
+  .dd-item.active{background:#243046;color:#9dc0ff}
+  .dd-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+  .dd-blk{flex:1;min-width:0}
+  .dd-name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dd-hint{font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dd-item.active .dd-name{color:#9dc0ff}
+  .dd-check{color:var(--accent);font-size:16px;font-weight:700;opacity:0;flex-shrink:0}
+  .dd-item.active .dd-check{opacity:1}
+
+  .dd-backdrop{position:fixed;inset:0;z-index:5;display:none;background:transparent}
+  .dd-backdrop.open{display:block}
 
   .mm-wrap{position:relative}
   .mm-wrap input{padding-right:44px}
   .mm-wrap .mm-suffix{
     position:absolute;right:14px;top:50%;transform:translateY(-50%);
-    color:var(--muted);font-size:14px;font-weight:600;
-    pointer-events:none;
+    color:var(--muted);font-size:14px;font-weight:600;pointer-events:none;
   }
   .mm-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .mm-pair label{margin-top:0}
@@ -113,35 +132,177 @@
   }
   #searchInput:focus{border-color:var(--accent)}
 
+  /* ====== общий аватар ====== */
+  .avatar{
+    background:linear-gradient(135deg,#4c8dff,#2fbf71);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;overflow:hidden;color:#fff;flex-shrink:0;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+  .d-ago.fresh{color:#b8ffd0}
+  .d-ago.mid{color:#ffd166}
+  .d-ago.old{color:#ffc2c4}
+  .d-ago{font-size:11px}
+
+  /* ====== СТИЛЬ 1: СЕЙЧАС ====== */
   .dog-list{display:flex;flex-direction:column;gap:8px}
-  .dog-card{
+  .dog-list.v1 .dog-card{
     display:flex;align-items:center;gap:12px;
     background:var(--panel);border:1px solid var(--line);border-radius:14px;
     padding:14px 16px;cursor:pointer;transition:.15s;
   }
-  .dog-card:hover{background:#1f2531;border-color:#37414f}
-  .dog-card:active{transform:scale(.99)}
-  .dog-avatar{
-    width:44px;height:44px;border-radius:50%;
+  .dog-list.v1 .dog-card:hover{background:#1f2531;border-color:#37414f}
+  .dog-list.v1 .avatar{width:44px;height:44px;border-radius:50%;font-size:20px}
+  .dog-list.v1 .dog-info{flex:1;min-width:0}
+  .dog-list.v1 .dog-name{font-weight:600;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v1 .dog-meta{color:var(--muted);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v1 .dog-right{color:var(--muted);font-size:12px;text-align:right;white-space:nowrap;line-height:1.35}
+  .dog-list.v1 .d-cnt{font-weight:600;color:#9dc0ff;display:block;font-size:14px}
+  .dog-list.v1 .d-ago{display:block;margin-top:8px}
+
+  /* ====== СТИЛЬ 2: ПОЛОСКА ====== */
+  .dog-list.v2 .dog-card{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border-radius:14px;
+    padding:16px 16px 16px 14px;cursor:pointer;transition:.15s;
+    border-left:5px solid #4a5568;
+  }
+  .dog-list.v2 .dog-card:hover{filter:brightness(1.15)}
+  .dog-list.v2 .avatar{width:52px;height:52px;border-radius:50%;font-size:22px}
+  .dog-list.v2 .dog-info{flex:1;min-width:0}
+  .dog-list.v2 .dog-name{font-weight:700;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v2 .dog-meta{color:var(--muted);font-size:13px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v2 .dog-right{text-align:right;line-height:1.4;flex-shrink:0}
+  .dog-list.v2 .d-cnt{
+    font-weight:700;color:#9dc0ff;font-size:13px;
+    background:rgba(76,141,255,.15);padding:3px 10px;border-radius:99px;
+    display:inline-block;white-space:nowrap;
+  }
+  .dog-list.v2 .d-date{color:var(--muted);font-size:12px;display:block;margin-top:6px}
+
+  /* ====== СТИЛЬ 3: ПЛИТКИ ====== */
+  .dog-list.v3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .dog-list.v3 .dog-card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:14px 12px;cursor:pointer;transition:.15s;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .dog-list.v3 .dog-card:hover{background:#1f2531;border-color:var(--accent);transform:translateY(-2px)}
+  .dog-list.v3 .tile-head{display:flex;align-items:center;gap:10px}
+  .dog-list.v3 .avatar{width:40px;height:40px;border-radius:50%;font-size:18px}
+  .dog-list.v3 .tile-name-blk{flex:1;min-width:0}
+  .dog-list.v3 .dog-name{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+  .dog-list.v3 .dog-meta{color:var(--muted);font-size:11px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v3 .tile-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);padding-bottom:8px;border-bottom:1px dashed var(--line)}
+  .dog-list.v3 .d-date{font-variant-numeric:tabular-nums}
+  .dog-list.v3 .d-cnt{background:rgba(76,141,255,.15);color:#9dc0ff;padding:2px 7px;border-radius:99px;font-weight:700;font-size:11px}
+  .dog-list.v3 .tile-rows{display:flex;flex-direction:column;gap:5px}
+  .dog-list.v3 .t-row{display:flex;align-items:flex-start;gap:5px;font-size:11px;line-height:1.3}
+  .dog-list.v3 .t-icon{flex-shrink:0;font-size:11px;width:14px;text-align:center;padding-top:1px}
+  .dog-list.v3 .t-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .dog-list.v3 .t-row.mm-body .t-text{color:#9dc0ff}
+  .dog-list.v3 .t-row.mm-paws .t-text{color:#c4b5fd}
+  .dog-list.v3 .t-row.services .t-text{color:#b8f0f4}
+  .dog-list.v3 .t-row.notes .t-text{color:#ffe4a3;font-style:italic}
+  .dog-list.v3 .t-row.empty .t-text{color:var(--muted);font-style:italic}
+
+  /* ====== СТИЛЬ 4: КРУПНОЕ ФОТО ====== */
+  .dog-list.v4 .dog-card{
+    display:flex;align-items:center;gap:16px;
+    background:linear-gradient(135deg,#1b2029,#181d26);
+    border:1px solid var(--line);border-radius:18px;
+    padding:16px;cursor:pointer;transition:.18s;
+  }
+  .dog-list.v4 .dog-card:hover{border-color:#4a5568;transform:translateX(2px)}
+  .dog-list.v4 .avatar{width:64px;height:64px;border-radius:18px;font-size:26px;box-shadow:0 8px 20px rgba(76,141,255,.2)}
+  .dog-list.v4 .dog-info{flex:1;min-width:0}
+  .dog-list.v4 .dog-name{font-weight:700;font-size:18px;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v4 .dog-meta{color:var(--muted);font-size:13px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v4 .d-last{
+    display:flex;align-items:center;gap:6px;
+    color:#9dc0ff;font-size:12px;margin-top:8px;font-weight:600;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .dog-list.v4 .d-last::before{content:'';width:6px;height:6px;border-radius:50%;background:#4c8dff;flex-shrink:0}
+  .dog-list.v4 .dog-right{text-align:right;flex-shrink:0}
+  .dog-list.v4 .d-cnt{font-size:22px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+  .dog-list.v4 .d-cnt-lbl{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+  .dog-list.v4 .d-date{color:var(--muted);font-size:11px;margin-top:8px;font-variant-numeric:tabular-nums}
+
+  /* ====== СТИЛЬ 5: БЕЙДЖИ ====== */
+  .dog-list.v5 .dog-card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:14px 16px;cursor:pointer;transition:.15s;
+  }
+  .dog-list.v5 .dog-card:hover{background:#1f2531}
+  .dog-list.v5 .d-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .dog-list.v5 .avatar{width:44px;height:44px;border-radius:12px;font-size:20px}
+  .dog-list.v5 .dog-name-blk{flex:1;min-width:0}
+  .dog-list.v5 .dog-name{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v5 .dog-meta{color:var(--muted);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v5 .d-visits{
+    background:rgba(76,141,255,.12);color:#9dc0ff;
+    font-size:12px;font-weight:700;
+    padding:4px 10px;border-radius:99px;flex-shrink:0;
+  }
+  .dog-list.v5 .d-badges{display:flex;flex-direction:column;gap:6px}
+  .dog-list.v5 .d-badges-top{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+  .dog-list.v5 .d-badge{
+    font-size:11px;font-weight:600;
+    padding:5px 10px;border-radius:8px;
+    background:var(--panel2);color:var(--muted);
+    display:inline-flex;align-items:flex-start;gap:5px;
+    max-width:100%;line-height:1.35;
+    align-self:flex-start;flex:0 0 auto;
+  }
+  .dog-list.v5 .d-badge .bi{flex-shrink:0}
+  .dog-list.v5 .d-badge .bt{
+    overflow:hidden;text-overflow:ellipsis;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+    word-break:break-word;
+  }
+  .dog-list.v5 .d-badge.mm-body{background:rgba(76,141,255,.15);color:#9dc0ff}
+  .dog-list.v5 .d-badge.mm-paws{background:rgba(167,139,250,.15);color:#c4b5fd}
+  .dog-list.v5 .d-badge.services{background:rgba(126,224,230,.15);color:#b8f0f4}
+  .dog-list.v5 .d-badge.notes{background:rgba(255,209,102,.15);color:#ffe4a3}
+  .dog-list.v5 .d-badge.date{background:var(--panel2);color:var(--muted);margin-left:auto}
+
+  /* ====== СТИЛЬ 6: ФОТО СВЕРХУ ====== */
+  .dog-list.v6{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .dog-list.v6 .dog-card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s;
+  }
+  .dog-list.v6 .dog-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .dog-list.v6 .d-img{
+    height:90px;
     background:linear-gradient(135deg,#4c8dff,#2fbf71);
     display:flex;align-items:center;justify-content:center;
-    font-size:20px;flex-shrink:0;font-weight:700;
-    overflow:hidden;position:relative;
+    font-size:36px;font-weight:800;color:rgba(255,255,255,.92);
+    position:relative;
   }
-  .dog-avatar img{
-    width:100%;height:100%;object-fit:cover;display:block;
+  .dog-list.v6 .d-img img{width:100%;height:100%;object-fit:cover}
+  .dog-list.v6 .d-img.shpits{background:linear-gradient(135deg,#4c8dff,#6b9eff)}
+  .dog-list.v6 .d-img.york{background:linear-gradient(135deg,#2fbf71,#4dd990)}
+  .dog-list.v6 .d-img.poodle{background:linear-gradient(135deg,#a78bfa,#c4b5fd)}
+  .dog-list.v6 .d-img.norwich{background:linear-gradient(135deg,#ffd166,#ffb84d)}
+  .dog-list.v6 .d-status{
+    position:absolute;top:8px;right:8px;
+    background:rgba(0,0,0,.5);color:#fff;
+    font-size:10px;font-weight:700;
+    padding:3px 7px;border-radius:99px;
+    letter-spacing:.5px;text-transform:uppercase;
   }
-  .dog-info{flex:1;min-width:0}
-  .dog-name{font-weight:600;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .dog-meta{color:var(--muted);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .dog-right{color:var(--muted);font-size:12px;text-align:right;white-space:nowrap;line-height:1.35}
-  .dog-right .d-cnt{font-weight:600;color:#9dc0ff;display:block;font-size:14px}
-  .dog-right .d-ago{display:block;font-size:11px}
-  .dog-right .d-ago.fresh{color:#b8ffd0}
-  .dog-right .d-ago.old{color:#ffc2c4}
+  .dog-list.v6 .d-body{padding:12px 14px}
+  .dog-list.v6 .dog-name{font-weight:700;font-size:15px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v6 .dog-meta{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-list.v6 .dog-right{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+  .dog-list.v6 .d-date{color:var(--muted);font-variant-numeric:tabular-nums}
+  .dog-list.v6 .d-cnt{background:rgba(76,141,255,.15);color:#9dc0ff;padding:2px 8px;border-radius:99px;font-weight:700}
 
+  /* карточка собаки */
   .dog-header{display:flex;gap:14px;align-items:flex-start}
-  .dog-header .dog-avatar{width:64px;height:64px;font-size:28px}
+  .dog-header .avatar{width:64px;height:64px;border-radius:50%;font-size:28px}
   .dog-header-info{flex:1;min-width:0}
   .dog-header-info .dog-name{font-size:22px;font-weight:700}
   .dog-header-info .dog-sub{color:var(--muted);font-size:13px;margin-top:4px}
@@ -150,6 +311,7 @@
   .dog-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
   .dog-actions button{flex:1;min-width:80px}
 
+  /* визиты */
   .visit-list{display:flex;flex-direction:column;gap:10px}
   .visit-card{
     background:var(--panel);border:1px solid var(--line);border-radius:14px;
@@ -164,8 +326,7 @@
   .visit-mm{
     font-size:12px;font-weight:700;
     background:#243046;color:#9dc0ff;
-    padding:3px 10px;border-radius:99px;
-    white-space:nowrap;
+    padding:3px 10px;border-radius:99px;white-space:nowrap;
   }
   .visit-services{color:var(--muted);font-size:13px;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .visit-photos{display:flex;gap:8px}
@@ -183,6 +344,7 @@
     padding:2px 6px;border-radius:4px;letter-spacing:.5px;
   }
 
+  /* просмотр визита */
   .view-photos{display:flex;flex-direction:column;gap:12px;margin-top:14px}
   .view-photo{
     background:#12161e;border-radius:12px;overflow:hidden;
@@ -220,21 +382,16 @@
     font-variant-numeric:tabular-nums;
   }
 
-  /* фото-слот с выбором источника */
+  /* фото-слот */
   .photo-upload{
     position:relative;border-radius:12px;overflow:hidden;
     background:#12161e;border:2px dashed #37414f;
     aspect-ratio:1/1;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    transition:.15s;
+    align-items:center;justify-content:center;transition:.15s;
   }
   .photo-upload:hover{border-color:#4a5568}
   .photo-upload input[type=file]{display:none}
-
-  .pu-buttons{
-    display:flex;flex-direction:column;gap:8px;
-    padding:12px;width:100%;
-  }
+  .pu-buttons{display:flex;flex-direction:column;gap:8px;padding:12px;width:100%}
   .pu-btn{
     display:flex;align-items:center;justify-content:center;gap:8px;
     background:#2a3341;color:var(--text);
@@ -243,10 +400,7 @@
     transition:.15s;cursor:pointer;
   }
   .pu-btn:hover{background:#3a4557;border-color:var(--accent);filter:none}
-  .pu-btn .pu-btn-icon{font-size:15px}
-
   .photo-upload img{width:100%;height:100%;object-fit:cover;display:block}
-
   .photo-upload .pu-remove{
     position:absolute;top:8px;right:8px;
     background:rgba(0,0,0,.72);color:#fff;border:none;
@@ -254,7 +408,6 @@
     cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;
     z-index:2;
   }
-
   .photo-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .photo-pair .pp-lbl{
     font-size:11px;color:var(--muted);text-transform:uppercase;
@@ -281,19 +434,13 @@
     box-shadow:0 10px 28px rgba(76,141,255,.45);cursor:pointer;z-index:99;
   }
 
-  .empty-state{
-    text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;
-  }
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
   .empty-state .es-icon{font-size:48px;margin-bottom:12px;opacity:.5}
 
-  .field-error{
-    color:var(--bad);font-size:12px;margin-top:4px;display:none;
-  }
+  .field-error{color:var(--bad);font-size:12px;margin-top:4px;display:none}
   .field-error.show{display:block}
 
-  .prefill-hint{
-    font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;
-  }
+  .prefill-hint{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic}
 </style>
 </head>
 <body>
@@ -309,18 +456,30 @@
     <div class="search-wrap">
       <input id="searchInput" type="text" placeholder="🔍 Кличка, порода, хозяин, дата, мм…" autocomplete="off">
     </div>
-    <div class="sort-row">
-      <button id="sortByName" class="sort-btn active" type="button">🔤 По алфавиту</button>
-      <button id="sortByDate" class="sort-btn" type="button">📅 По дате визита</button>
+    <div class="tools-row">
+      <div class="dropdown-wrap" id="sortWrap">
+        <button class="tool-btn" id="sortBtn">
+          <span id="sortBtnLabel">🔤 Алфавит</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="dd-menu" id="sortMenu"></div>
+      </div>
+      <div class="dropdown-wrap" id="viewWrap">
+        <button class="tool-btn" id="viewBtn">
+          <span id="viewBtnLabel">👁 Полоска</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="dd-menu" id="viewMenu"></div>
+      </div>
     </div>
     <button id="addDogBtn" class="primary full">+ Добавить собаку</button>
-    <div id="dogList" class="dog-list"></div>
+    <div id="dogList" class="dog-list v2"></div>
   </section>
 
   <section id="screenDog" class="screen">
     <div class="panel">
       <div class="dog-header">
-        <div class="dog-avatar" id="dogAvatar">🐕</div>
+        <div class="avatar" id="dogAvatar">🐕</div>
         <div class="dog-header-info">
           <div class="dog-name" id="dogNameView">—</div>
           <div class="dog-sub" id="dogBreedView">—</div>
@@ -353,6 +512,7 @@
         <option value="Шпиц"></option>
         <option value="Йорк"></option>
         <option value="Пудель"></option>
+        <option value="Норвич-терьер"></option>
         <option value="Мальтезе"></option>
         <option value="Чихуахуа"></option>
         <option value="Мопс"></option>
@@ -442,6 +602,8 @@
 
 <button id="installBtn">⬇ Установить на телефон</button>
 
+<div class="dd-backdrop" id="ddBackdrop"></div>
+
 <div class="lightbox" id="lightbox">
   <button class="close-x" id="lightboxClose">✕</button>
   <img id="lightboxImg" src="" alt="">
@@ -451,11 +613,25 @@
 (function(){
   "use strict";
 
-  const LS_KEY = 'grooming_clients_v1';
+  const LS_KEY      = 'grooming_clients_v1';
   const LS_SORT_KEY = 'grooming_clients_sort_v1';
+  const LS_VIEW_KEY = 'grooming_clients_view_v1';
+
+  const VIEWS = [
+    { id: 'v1', name: 'Сейчас',        icon: '📋', hint: 'Классические карточки' },
+    { id: 'v2', name: 'Полоска',       icon: '🎨', hint: 'Цвет породы слева' },
+    { id: 'v3', name: 'Плитки',        icon: '🔲', hint: 'Сетка с деталями' },
+    { id: 'v4', name: 'Крупное фото',  icon: '🖼', hint: 'Большой аватар' },
+    { id: 'v5', name: 'Бейджи',        icon: '🏷', hint: 'Всё плашками' },
+    { id: 'v6', name: 'Фото сверху',   icon: '📸', hint: 'Баннер-плитки' }
+  ];
+
+  const SORTS = [
+    { id: 'name', name: 'По алфавиту',    icon: '🔤', hint: 'Бублик, Жуля, Пёсель…' },
+    { id: 'date', name: 'По дате визита', icon: '📅', hint: 'Свежие визиты сверху' }
+  ];
 
   const $ = id => document.getElementById(id);
-
   const screenTitle = $('screenTitle');
   const backBtn     = $('backBtn');
   const screens     = {
@@ -469,8 +645,18 @@
   const dogList     = $('dogList');
   const searchInput = $('searchInput');
   const addDogBtn   = $('addDogBtn');
-  const sortByName  = $('sortByName');
-  const sortByDate  = $('sortByDate');
+
+  const sortWrap     = $('sortWrap');
+  const sortBtn      = $('sortBtn');
+  const sortBtnLabel = $('sortBtnLabel');
+  const sortMenu     = $('sortMenu');
+
+  const viewWrap     = $('viewWrap');
+  const viewBtn      = $('viewBtn');
+  const viewBtnLabel = $('viewBtnLabel');
+  const viewMenu     = $('viewMenu');
+
+  const ddBackdrop   = $('ddBackdrop');
 
   const dogAvatar   = $('dogAvatar');
   const dogNameView = $('dogNameView');
@@ -509,6 +695,7 @@
 
   let state = { dogs: [] };
   let sortMode = 'name';
+  let viewMode = 'v2';
   let currentDogId  = null;
   let currentVisitId= null;
   let editingDogId  = null;
@@ -524,13 +711,11 @@
       {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
     ));
   }
-
   function todayISO(){
     const d = new Date();
     const p = n => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
   }
-
   function fmtDate(iso){
     if (!iso) return '';
     const d = new Date(iso + 'T00:00:00');
@@ -538,43 +723,51 @@
     const p = n => String(n).padStart(2, '0');
     return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`;
   }
-
+  function fmtDateShort(iso){
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    if (isNaN(d)) return iso;
+    const p = n => String(n).padStart(2, '0');
+    return `${p(d.getDate())}.${p(d.getMonth()+1)}.${String(d.getFullYear()).slice(-2)}`;
+  }
   function daysAgo(iso){
     if (!iso) return null;
     const then = new Date(iso + 'T00:00:00');
     if (isNaN(then)) return null;
-    const now = new Date();
-    now.setHours(0,0,0,0);
+    const now = new Date(); now.setHours(0,0,0,0);
     return Math.floor((now - then) / 86400000);
   }
-
   function daysAgoText(iso){
     const d = daysAgo(iso);
     if (d === null) return '';
     if (d === 0) return 'сегодня';
-    if (d === 1) return '1 день назад';
+    if (d === 1) return 'вчера';
     if (d >= 2 && d <= 4) return `${d} дня назад`;
     if (d >= 5 && d <= 20) return `${d} дней назад`;
-    const mod10 = d % 10, mod100 = d % 100;
-    if (mod10 === 1 && mod100 !== 11) return `${d} день назад`;
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${d} дня назад`;
+    const m10 = d % 10, m100 = d % 100;
+    if (m10 === 1 && m100 !== 11) return `${d} день назад`;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return `${d} дня назад`;
     return `${d} дней назад`;
   }
-
+  function daysAgoTextShort(iso){
+    const d = daysAgo(iso);
+    if (d === null) return '';
+    if (d === 0) return 'сегодня';
+    if (d === 1) return '1 дн.';
+    return `${d} дн.`;
+  }
   function daysAgoClass(iso){
     const d = daysAgo(iso);
     if (d === null) return '';
     if (d <= 30) return 'fresh';
     if (d >= 90) return 'old';
-    return '';
+    return 'mid';
   }
-
   function initials(name){
     const s = String(name || '').trim();
     if (!s) return '🐕';
     return s.slice(0, 1).toUpperCase();
   }
-
   function dogAvatarUrl(d){
     const visits = (d.visits || []).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     for (const v of visits){
@@ -583,11 +776,39 @@
     }
     return null;
   }
-
+  function avatarHtml(d){
+    const url = dogAvatarUrl(d);
+    if (url) return `<div class="avatar"><img src="${url}" alt="${esc(d.name)}"></div>`;
+    return `<div class="avatar">${esc(initials(d.name))}</div>`;
+  }
+  function breedColor(d){
+    const b = (d.breed || '').toLowerCase();
+    if (b.includes('шпиц'))   return '#4c8dff';
+    if (b.includes('йорк'))   return '#2fbf71';
+    if (b.includes('пудел'))  return '#a78bfa';
+    if (b.includes('норвич')) return '#ffd166';
+    if (b.includes('чихуа'))  return '#7ee0e6';
+    if (b.includes('мопс'))   return '#ffa58c';
+    if (b.includes('мальтез'))return '#ff9ecb';
+    return '#4a5568';
+  }
+  function breedClass(d){
+    const b = (d.breed || '').toLowerCase();
+    if (b.includes('шпиц'))   return 'shpits';
+    if (b.includes('йорк'))   return 'york';
+    if (b.includes('пудел'))  return 'poodle';
+    if (b.includes('норвич')) return 'norwich';
+    return '';
+  }
+  function pluralVisits(n){
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return 'визит';
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'визита';
+    return 'визитов';
+  }
   function cleanMm(s){
     return String(s || '').trim().replace(/[^\d.,\s]/g, '');
   }
-
   function save(){
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(state));
@@ -613,19 +834,23 @@
           return;
         }
       }
-    } catch(e){ /* ignore */ }
+    } catch(e){}
     state = { dogs: [] };
   }
-
   function loadSort(){
     try {
       const s = localStorage.getItem(LS_SORT_KEY);
       if (s === 'name' || s === 'date') sortMode = s;
-    } catch(e){ /* ignore */ }
+    } catch(e){}
   }
-  function saveSort(){
-    try { localStorage.setItem(LS_SORT_KEY, sortMode); } catch(e){}
+  function saveSort(){ try { localStorage.setItem(LS_SORT_KEY, sortMode); } catch(e){} }
+  function loadView(){
+    try {
+      const v = localStorage.getItem(LS_VIEW_KEY);
+      if (v && VIEWS.find(x => x.id === v)) viewMode = v;
+    } catch(e){}
   }
+  function saveView(){ try { localStorage.setItem(LS_VIEW_KEY, viewMode); } catch(e){} }
 
   function showScreen(name, title){
     Object.keys(screens).forEach(k => {
@@ -672,6 +897,11 @@
     if (!visits.length) return '';
     return visits.reduce((max, v) => (v.date || '') > max ? (v.date || '') : max, '');
   }
+  function getLastVisit(d){
+    const visits = (d.visits || []);
+    if (!visits.length) return null;
+    return visits.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+  }
 
   function applySort(arr){
     if (sortMode === 'date'){
@@ -689,75 +919,235 @@
     return arr;
   }
 
-  function updateSortButtons(){
-    sortByName.classList.toggle('active', sortMode === 'name');
-    sortByDate.classList.toggle('active', sortMode === 'date');
+  function updateToolBtns(){
+    const sort = SORTS.find(s => s.id === sortMode);
+    const view = VIEWS.find(v => v.id === viewMode);
+    sortBtnLabel.textContent = `${sort.icon} ${sort.name.replace('По ', '')}`;
+    viewBtnLabel.textContent = `👁 ${view.name}`;
   }
 
-  sortByName.addEventListener('click', () => {
-    if (sortMode === 'name') return;
-    sortMode = 'name';
-    saveSort();
-    updateSortButtons();
-    renderList();
+  /* ===== выпадашки ===== */
+  function closeAllDropdowns(){
+    sortWrap.classList.remove('open');
+    viewWrap.classList.remove('open');
+    ddBackdrop.classList.remove('open');
+  }
+  function openDropdown(which){
+    closeAllDropdowns();
+    if (which === 'sort'){ renderSortMenu(); sortWrap.classList.add('open'); }
+    else { renderViewMenu(); viewWrap.classList.add('open'); }
+    ddBackdrop.classList.add('open');
+  }
+  ddBackdrop.addEventListener('click', closeAllDropdowns);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllDropdowns(); });
+
+  sortBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (sortWrap.classList.contains('open')) closeAllDropdowns();
+    else openDropdown('sort');
   });
-  sortByDate.addEventListener('click', () => {
-    if (sortMode === 'date') return;
-    sortMode = 'date';
-    saveSort();
-    updateSortButtons();
-    renderList();
+  viewBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (viewWrap.classList.contains('open')) closeAllDropdowns();
+    else openDropdown('view');
   });
+
+  function renderSortMenu(){
+    sortMenu.innerHTML = '';
+    SORTS.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'dd-item' + (s.id === sortMode ? ' active' : '');
+      item.innerHTML = `
+        <div class="dd-icon">${s.icon}</div>
+        <div class="dd-blk">
+          <div class="dd-name">${esc(s.name)}</div>
+          <div class="dd-hint">${esc(s.hint)}</div>
+        </div>
+        <div class="dd-check">✓</div>`;
+      item.addEventListener('click', () => {
+        sortMode = s.id; saveSort(); updateToolBtns(); renderList(); closeAllDropdowns();
+      });
+      sortMenu.appendChild(item);
+    });
+  }
+  function renderViewMenu(){
+    viewMenu.innerHTML = '';
+    VIEWS.forEach(v => {
+      const item = document.createElement('div');
+      item.className = 'dd-item' + (v.id === viewMode ? ' active' : '');
+      item.innerHTML = `
+        <div class="dd-icon">${v.icon}</div>
+        <div class="dd-blk">
+          <div class="dd-name">${esc(v.name)}</div>
+          <div class="dd-hint">${esc(v.hint)}</div>
+        </div>
+        <div class="dd-check">✓</div>`;
+      item.addEventListener('click', () => {
+        viewMode = v.id; saveView(); updateToolBtns();
+        dogList.className = 'dog-list ' + viewMode;
+        renderList();
+        closeAllDropdowns();
+      });
+      viewMenu.appendChild(item);
+    });
+  }
+
+  /* ===== рендер карточки в зависимости от вида ===== */
+  function renderCardForView(d){
+    const last = getLastVisitDate(d);
+    const lastV = getLastVisit(d);
+    const cnt = (d.visits || []).length;
+    const agoText = last ? daysAgoText(last) : '';
+    const agoShort = last ? daysAgoTextShort(last) : '';
+    const agoCls  = last ? daysAgoClass(last) : '';
+    const name = esc(d.name);
+    const breed = esc(d.breed || '');
+    const owner = esc(d.owner || '');
+    const meta = breed + (breed && owner ? ' · ' : '') + owner;
+
+    if (viewMode === 'v1'){
+      return `
+        ${avatarHtml(d)}
+        <div class="dog-info">
+          <div class="dog-name">${name}</div>
+          <div class="dog-meta">${meta}</div>
+        </div>
+        <div class="dog-right">
+          <span class="d-cnt">${cnt}</span>
+          ${last ? `${fmtDateShort(last)}<span class="d-ago ${agoCls}">${agoText}</span>` : '—'}
+        </div>`;
+    }
+    if (viewMode === 'v2'){
+      return `
+        <div style="display:flex;align-items:center;gap:14px;width:100%">
+          ${avatarHtml(d)}
+          <div class="dog-info">
+            <div class="dog-name">${name}</div>
+            <div class="dog-meta">${meta}</div>
+          </div>
+          <div class="dog-right">
+            <span class="d-cnt">${cnt} ${pluralVisits(cnt)}</span>
+            ${last ? `<span class="d-date">${fmtDateShort(last)}</span><span class="d-ago ${agoCls}" style="display:block;margin-top:2px">${agoText}</span>` : '—'}
+          </div>
+        </div>`;
+    }
+    if (viewMode === 'v3'){
+      const rows = [];
+      if (lastV){
+        if (lastV.clipperBody) rows.push(`<div class="t-row mm-body"><span class="t-icon">✂</span><span class="t-text">Корпус ${esc(lastV.clipperBody)} мм</span></div>`);
+        if (lastV.clipperPaws) rows.push(`<div class="t-row mm-paws"><span class="t-icon">🐾</span><span class="t-text">Лапы ${esc(lastV.clipperPaws)} мм</span></div>`);
+        if (lastV.services)    rows.push(`<div class="t-row services"><span class="t-icon">📝</span><span class="t-text">${esc(lastV.services)}</span></div>`);
+        if (lastV.notes)       rows.push(`<div class="t-row notes"><span class="t-icon">💬</span><span class="t-text">${esc(lastV.notes)}</span></div>`);
+      }
+      if (!rows.length) rows.push(`<div class="t-row empty"><span class="t-text">нет данных</span></div>`);
+      return `
+        <div class="tile-head">
+          ${avatarHtml(d)}
+          <div class="tile-name-blk">
+            <div class="dog-name">${name}</div>
+            <div class="dog-meta">${breed || 'без породы'}</div>
+          </div>
+        </div>
+        <div class="tile-row">
+          <span class="d-date">${last ? fmtDateShort(last) : '—'}</span>
+          <span class="d-cnt">${cnt}</span>
+        </div>
+        <div class="tile-rows">${rows.join('')}</div>`;
+    }
+    if (viewMode === 'v4'){
+      const lastService = lastV && lastV.services ? lastV.services : 'нет визитов';
+      return `
+        ${avatarHtml(d)}
+        <div class="dog-info">
+          <div class="dog-name">${name}</div>
+          <div class="dog-meta">${meta}</div>
+          <div class="d-last">${esc(lastService)}</div>
+        </div>
+        <div class="dog-right">
+          <div class="d-cnt">${cnt}</div>
+          <div class="d-cnt-lbl">${pluralVisits(cnt)}</div>
+          ${last ? `<div class="d-date">${fmtDateShort(last)}</div>` : ''}
+        </div>`;
+    }
+    if (viewMode === 'v5'){
+      const top = [];
+      if (lastV){
+        if (lastV.clipperBody) top.push(`<span class="d-badge mm-body"><span class="bi">✂</span><span class="bt">Корпус ${esc(lastV.clipperBody)} мм</span></span>`);
+        if (lastV.clipperPaws) top.push(`<span class="d-badge mm-paws"><span class="bi">🐾</span><span class="bt">Лапы ${esc(lastV.clipperPaws)} мм</span></span>`);
+      }
+      if (last) top.push(`<span class="d-badge date">${fmtDateShort(last)}</span>`);
+      if (!top.length) top.push(`<span class="d-badge">нет визитов</span>`);
+
+      let bottom = '';
+      if (lastV){
+        if (lastV.services) bottom += `<span class="d-badge services"><span class="bi">📝</span><span class="bt">${esc(lastV.services)}</span></span>`;
+        if (lastV.notes)    bottom += `<span class="d-badge notes"><span class="bi">💬</span><span class="bt">${esc(lastV.notes)}</span></span>`;
+      }
+
+      return `
+        <div class="d-head">
+          ${avatarHtml(d)}
+          <div class="dog-name-blk">
+            <div class="dog-name">${name}</div>
+            <div class="dog-meta">${meta}</div>
+          </div>
+          <span class="d-visits">${cnt} ${pluralVisits(cnt)}</span>
+        </div>
+        <div class="d-badges">
+          <div class="d-badges-top">${top.join('')}</div>
+          ${bottom}
+        </div>`;
+    }
+    if (viewMode === 'v6'){
+      const url = dogAvatarUrl(d);
+      const cls = breedClass(d);
+      const inner = url ? `<img src="${url}" alt="${name}">` : esc(initials(d.name));
+      return `
+        <div class="d-img ${cls}">
+          ${inner}
+          <span class="d-status">${cnt} ${pluralVisits(cnt)}</span>
+        </div>
+        <div class="d-body">
+          <div class="dog-name">${name}</div>
+          <div class="dog-meta">${breed || 'без породы'}</div>
+          <div class="dog-right">
+            <span class="d-date">${last ? fmtDateShort(last) : '—'}</span>
+            <span class="d-ago ${agoCls}">${agoShort}</span>
+          </div>
+        </div>`;
+    }
+    return '';
+  }
 
   function renderList(){
     const q = searchInput.value.trim().toLowerCase();
     const filtered = state.dogs.filter(d => dogMatchesQuery(d, q));
 
+    dogList.className = 'dog-list ' + viewMode;
     dogList.innerHTML = '';
 
     if (!state.dogs.length){
       dogList.innerHTML = `
-        <div class="empty-state">
+        <div class="empty-state" style="grid-column:1/-1">
           <div class="es-icon">🐩</div>
           <div>Пока ни одной собаки</div>
           <div style="margin-top:8px;font-size:13px">Нажмите «+ Добавить собаку»</div>
         </div>`;
       return;
     }
-
     if (!filtered.length){
-      dogList.innerHTML = `<div class="empty-state">Ничего не найдено по запросу «${esc(q)}»</div>`;
+      dogList.innerHTML = `<div class="empty-state" style="grid-column:1/-1">Ничего не найдено по запросу «${esc(q)}»</div>`;
       return;
     }
 
     applySort(filtered);
 
     filtered.forEach(d => {
-      const last = getLastVisitDate(d);
-      const cnt = (d.visits || []).length;
-      const agoText = last ? daysAgoText(last) : '';
-      const agoCls  = last ? daysAgoClass(last) : '';
-      const avatarUrl = dogAvatarUrl(d);
-
-      const avatarHtml = avatarUrl
-        ? `<img src="${avatarUrl}" alt="${esc(d.name)}">`
-        : esc(initials(d.name));
-
       const card = document.createElement('div');
       card.className = 'dog-card';
       card.dataset.id = d.id;
-      card.innerHTML = `
-        <div class="dog-avatar">${avatarHtml}</div>
-        <div class="dog-info">
-          <div class="dog-name">${esc(d.name)}</div>
-          <div class="dog-meta">${esc(d.breed || '')}${d.breed && d.owner ? ' · ' : ''}${esc(d.owner || '')}</div>
-        </div>
-        <div class="dog-right">
-          <span class="d-cnt">${cnt}</span>
-          ${last
-            ? `${fmtDate(last)}<span class="d-ago ${agoCls}">${agoText}</span>`
-            : '—'}
-        </div>`;
+      if (viewMode === 'v2') card.style.borderLeftColor = breedColor(d);
+      card.innerHTML = renderCardForView(d);
       dogList.appendChild(card);
     });
   }
@@ -912,13 +1302,10 @@
     showScreen('list', '✂️ Клиенты');
   });
 
-  /* ---------- РАБОТА С ФОТО-СЛОТОМ ---------- */
-  // который = 'before' | 'after'
+  /* фото-слот с камерой/галереей */
   function renderPhotoSlot(el, dataUrl, which){
     el.innerHTML = '';
-
     if (dataUrl){
-      // показываем фото + кнопку удаления
       const img = document.createElement('img');
       img.src = dataUrl;
       img.alt = which === 'before' ? 'До' : 'После';
@@ -930,36 +1317,31 @@
       rm.textContent = '✕';
       rm.title = 'Убрать фото';
       rm.addEventListener('click', ev => {
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         if (which === 'before') tempPhotoBefore = null;
         else                    tempPhotoAfter  = null;
         renderPhotoSlot(el, null, which);
       });
       el.appendChild(rm);
-
     } else {
-      // пустой слот с двумя кнопками
       const wrap = document.createElement('div');
       wrap.className = 'pu-buttons';
 
       const btnCamera = document.createElement('button');
       btnCamera.type = 'button';
       btnCamera.className = 'pu-btn';
-      btnCamera.innerHTML = `<span class="pu-btn-icon">📷</span> Камера`;
+      btnCamera.innerHTML = `<span>📷</span> Камера`;
       btnCamera.addEventListener('click', ev => {
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         openFilePicker(which, 'camera');
       });
 
       const btnGallery = document.createElement('button');
       btnGallery.type = 'button';
       btnGallery.className = 'pu-btn';
-      btnGallery.innerHTML = `<span class="pu-btn-icon">🖼</span> Галерея`;
+      btnGallery.innerHTML = `<span>🖼</span> Галерея`;
       btnGallery.addEventListener('click', ev => {
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         openFilePicker(which, 'gallery');
       });
 
@@ -969,12 +1351,10 @@
     }
   }
 
-  // создаём временный input прямо в момент клика — самый надёжный способ
   function openFilePicker(which, source){
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    // capture="environment" — открыть камеру (на мобилке)
     if (source === 'camera') input.setAttribute('capture', 'environment');
     input.style.display = 'none';
 
@@ -1002,10 +1382,7 @@
 
   function compressImage(file, maxSide, quality){
     return new Promise((resolve, reject) => {
-      if (!file || !file.type.startsWith('image/')){
-        reject(new Error('not an image'));
-        return;
-      }
+      if (!file || !file.type.startsWith('image/')){ reject(new Error('not image')); return; }
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
@@ -1017,14 +1394,13 @@
           c.width = w; c.height = h;
           const ctx = c.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          try {
-            resolve(c.toDataURL('image/jpeg', quality));
-          } catch(err){ reject(err); }
+          try { resolve(c.toDataURL('image/jpeg', quality)); }
+          catch(err){ reject(err); }
         };
-        img.onerror = () => reject(new Error('image load error'));
+        img.onerror = () => reject(new Error('load'));
         img.src = e.target.result;
       };
-      reader.onerror = () => reject(new Error('read error'));
+      reader.onerror = () => reject(new Error('read'));
       reader.readAsDataURL(file);
     });
   }
@@ -1074,11 +1450,8 @@
   });
 
   $('cancelVisitForm').addEventListener('click', () => {
-    if (editingVisitId){
-      showVisit(editingVisitId);
-    } else {
-      showDog(currentDogId);
-    }
+    if (editingVisitId) showVisit(editingVisitId);
+    else showDog(currentDogId);
   });
 
   $('saveVisitForm').addEventListener('click', () => {
@@ -1130,7 +1503,6 @@
     screenTitle.textContent = `${d.name} · ${fmtDate(v.date)}`;
 
     let html = '';
-
     if (v.clipperBody || v.clipperPaws){
       html += `<div class="view-block">
                  <div class="vb-lbl">Стрижка под машинку</div>
@@ -1146,32 +1518,28 @@
                  </div>
                </div>`;
     }
-
     html += `<div class="view-block">
                <div class="vb-lbl">Что делал</div>
                <div class="vb-text">${esc(v.services || '—')}</div>
              </div>`;
-
-    html += `<div class="view-photos">`;
-    html += `<div class="view-photo">
-               <div class="vp-lbl">До</div>
-               ${v.photoBefore ? `<img src="${v.photoBefore}" data-src="${v.photoBefore}" alt="До">`
-                              : `<div class="no-photo">Фото не добавлено</div>`}
+    html += `<div class="view-photos">
+               <div class="view-photo">
+                 <div class="vp-lbl">До</div>
+                 ${v.photoBefore ? `<img src="${v.photoBefore}" data-src="${v.photoBefore}" alt="До">`
+                                : `<div class="no-photo">Фото не добавлено</div>`}
+               </div>
+               <div class="view-photo">
+                 <div class="vp-lbl">После</div>
+                 ${v.photoAfter ? `<img src="${v.photoAfter}" data-src="${v.photoAfter}" alt="После">`
+                               : `<div class="no-photo">Фото не добавлено</div>`}
+               </div>
              </div>`;
-    html += `<div class="view-photo">
-               <div class="vp-lbl">После</div>
-               ${v.photoAfter ? `<img src="${v.photoAfter}" data-src="${v.photoAfter}" alt="После">`
-                             : `<div class="no-photo">Фото не добавлено</div>`}
-             </div>`;
-    html += `</div>`;
-
     if (v.notes){
       html += `<div class="view-block">
                  <div class="vb-lbl">Заметки</div>
                  <div class="vb-text">${esc(v.notes)}</div>
                </div>`;
     }
-
     visitViewBody.innerHTML = html;
     showScreen('visitView', `${d.name} · ${fmtDate(v.date)}`);
   }
@@ -1210,9 +1578,11 @@
     showDog(d.id);
   });
 
+  /* ===== инициализация ===== */
   load();
   loadSort();
-  updateSortButtons();
+  loadView();
+  updateToolBtns();
   renderList();
   showScreen('list', '✂️ Клиенты');
 
