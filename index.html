@@ -47,6 +47,62 @@
   .screen{display:none;flex-direction:column;gap:14px}
   .screen.active{display:flex}
 
+  /* === ПЛАВНОЕ ПОЯВЛЕНИЕ ЭКРАНА === */
+  .screen.active{animation:screenIn .22s ease-out}
+
+  @keyframes screenIn{
+    from{opacity:0;transform:translateY(6px)}
+    to  {opacity:1;transform:translateY(0)}
+  }
+
+  /* === ПЛАВНОЕ ПОЯВЛЕНИЕ КАРТОЧЕК === */
+  .dog-card,
+  .visit-card{
+    animation:cardIn .38s cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  @keyframes cardIn{
+    from{
+      opacity:0;
+      transform:translateY(14px) scale(.97);
+      filter:blur(4px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0) scale(1);
+      filter:blur(0);
+    }
+  }
+
+  /* Ступенчатая задержка — карточки появляются одна за другой */
+  .dog-list > .dog-card:nth-child(1)  {animation-delay:.02s}
+  .dog-list > .dog-card:nth-child(2)  {animation-delay:.06s}
+  .dog-list > .dog-card:nth-child(3)  {animation-delay:.10s}
+  .dog-list > .dog-card:nth-child(4)  {animation-delay:.14s}
+  .dog-list > .dog-card:nth-child(5)  {animation-delay:.18s}
+  .dog-list > .dog-card:nth-child(6)  {animation-delay:.22s}
+  .dog-list > .dog-card:nth-child(7)  {animation-delay:.26s}
+  .dog-list > .dog-card:nth-child(8)  {animation-delay:.30s}
+  .dog-list > .dog-card:nth-child(9)  {animation-delay:.34s}
+  .dog-list > .dog-card:nth-child(10) {animation-delay:.38s}
+  .dog-list > .dog-card:nth-child(n+11){animation-delay:.42s}
+
+  /* Для визитов — аналогично */
+  .visit-list > .visit-card:nth-child(1)  {animation-delay:.02s}
+  .visit-list > .visit-card:nth-child(2)  {animation-delay:.06s}
+  .visit-list > .visit-card:nth-child(3)  {animation-delay:.10s}
+  .visit-list > .visit-card:nth-child(4)  {animation-delay:.14s}
+  .visit-list > .visit-card:nth-child(5)  {animation-delay:.18s}
+  .visit-list > .visit-card:nth-child(n+6){animation-delay:.22s}
+
+  /* Уважаем системную настройку «уменьшить анимации» */
+  @media (prefers-reduced-motion: reduce){
+    .screen.active,
+    .dog-card,
+    .visit-card{
+      animation:none !important;
+    }
+  }
+
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin:0 0 10px;font-weight:600}
 
@@ -926,7 +982,6 @@
     viewBtnLabel.textContent = `👁 ${view.name}`;
   }
 
-  /* ===== выпадашки ===== */
   function closeAllDropdowns(){
     sortWrap.classList.remove('open');
     viewWrap.classList.remove('open');
@@ -992,7 +1047,6 @@
     });
   }
 
-  /* ===== рендер карточки в зависимости от вида ===== */
   function renderCardForView(d){
     const last = getLastVisitDate(d);
     const lastV = getLastVisit(d);
@@ -1302,7 +1356,6 @@
     showScreen('list', '✂️ Клиенты');
   });
 
-  /* фото-слот с камерой/галереей */
   function renderPhotoSlot(el, dataUrl, which){
     el.innerHTML = '';
     if (dataUrl){
@@ -1578,7 +1631,6 @@
     showDog(d.id);
   });
 
-  /* ===== инициализация ===== */
   load();
   loadSort();
   loadView();
