@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Груминг — превью интерфейса</title>
+<style>
+  :root{
+    --bg:#0d1016; --bg-r1:#1d2634; --bg-r2:#0d1016;
+    --panel:#1b2029; --panel2:#232a35; --panel3:#1f2531;
+    --line:#2a3341; --text:#e8edf5; --muted:#8b97a8;
+    --accent:#4c8dff; --accent-soft:#243046; --accent-text:#9dc0ff;
+    --accent-shadow:rgba(76,141,255,.45);
+    --input-bg:#12161e; --dd-menu-bg:#1e242e; --dd-hover-bg:#2a3341;
+    --back-border:#37414f;
+    --ok:#2fbf71; --bad:#e5484d; --money:#ffd166;
+    --soft-blue:rgba(76,141,255,.15); --soft-blue-text:#9dc0ff;
+    --soft-purple:rgba(167,139,250,.15); --soft-purple-text:#c4b5fd;
+    --soft-teal:rgba(126,224,230,.15); --soft-teal-text:#b8f0f4;
+    --soft-yellow:rgba(255,209,102,.15); --soft-yellow-text:#ffe4a3;
+    --soft-green:rgba(47,191,113,.12); --soft-green-text:#b8ffd0;
+    --soft-red:rgba(229,72,77,.15); --soft-red-text:#ffc2c4;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:0;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, var(--bg-r1), var(--bg-r2) 60%);
+    color:var(--text); min-height:100vh;
+  }
+  .app{
+    max-width:820px;margin:0 auto;
+    padding:0 16px 140px;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:calc(140px + env(safe-area-inset-bottom));
+  }
+
+  /* ====== ШАПКА С ЛОГОТИПОМ ====== */
+  .header{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 0 12px;
+    position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg, var(--bg) 70%, transparent);
+  }
+  .logo-box{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(135deg, var(--accent), #7c5dd6);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex-shrink:0;
+    box-shadow:0 6px 16px var(--accent-shadow);
+  }
+  .header-text{flex:1;min-width:0}
+  .header-text h1{
+    margin:0;font-size:16px;font-weight:700;
+    letter-spacing:.3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .header-text .sub-h{
+    font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:1px;margin-top:2px;
+  }
+  .theme-btn{
+    background:transparent;
+    border:1px solid var(--back-border);
+    color:var(--text);
+    width:38px;height:38px;border-radius:10px;
+    font-size:17px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;flex-shrink:0;
+  }
+
+  /* ====== МИНИ-СТАТИСТИКА ====== */
+  .mini-stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+    margin-bottom:14px;
+  }
+  .mini-stat{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:12px 8px;text-align:center;
+  }
+  .mini-stat .ms-num{
+    font-size:22px;font-weight:800;
+    font-variant-numeric:tabular-nums;line-height:1;
+  }
+  .mini-stat .ms-lbl{
+    font-size:10px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.6px;
+    margin-top:5px;
+  }
+  .mini-stat.warn .ms-num{color:var(--soft-red-text)}
+
+  /* ====== ПОИСК ====== */
+  .search-wrap{margin-bottom:10px}
+  .search-input{
+    width:100%;padding:12px 14px;font:inherit;
+    background:var(--input-bg);border:1px solid var(--line);color:var(--text);
+    border-radius:12px;outline:none;
+  }
+  .search-input:focus{border-color:var(--accent)}
+
+  /* ====== СПИСОК ====== */
+  .dog-list{display:flex;flex-direction:column;gap:10px}
+  .dog-card{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border-radius:14px;
+    padding:16px 16px 16px 14px;
+    border-left:5px solid #4a5568;
+    cursor:pointer;transition:.15s;
+    position:relative;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    animation:cardIn .38s cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  @keyframes cardIn{
+    from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(4px)}
+    to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+  }
+  .dog-list > .dog-card:nth-child(1){animation-delay:.02s}
+  .dog-list > .dog-card:nth-child(2){animation-delay:.06s}
+  .dog-list > .dog-card:nth-child(3){animation-delay:.10s}
+  .dog-list > .dog-card:nth-child(4){animation-delay:.14s}
+  .dog-list > .dog-card:nth-child(5){animation-delay:.18s}
+  .dog-list > .dog-card:nth-child(6){animation-delay:.22s}
+
+  .dog-card:hover{filter:brightness(1.05)}
+  .dog-card.warn-soon{border-left-color:var(--money)}
+  .dog-card.warn{border-left-color:var(--bad)}
+  .dog-card.press{transform:scale(.98);filter:brightness(1.1)}
+
+  .avatar{
+    background:linear-gradient(135deg,#4c8dff,#2fbf71);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;
+    width:52px;height:52px;border-radius:50%;font-size:22px;
+  }
+  .dog-info{flex:1;min-width:0}
+  .dog-name{font-weight:700;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-meta{color:var(--muted);font-size:13px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dog-right{text-align:right;line-height:1.4;flex-shrink:0;position:relative}
+  .d-cnt{
+    font-weight:700;color:var(--accent-text);font-size:13px;
+    background:var(--soft-blue);padding:3px 10px;border-radius:99px;
+    display:inline-block;white-space:nowrap;
+  }
+  .d-date{color:var(--muted);font-size:12px;display:block;margin-top:6px}
+  .ring-badge{
+    position:absolute;top:-2px;right:-2px;
+    background:var(--bad);color:#fff;
+    font-size:10px;font-weight:700;
+    padding:2px 7px;border-radius:99px;
+    white-space:nowrap;
+    box-shadow:0 0 0 2px var(--panel);
+  }
+  .ring-badge.soon{background:var(--money);color:#3a2a00}
+
+  /* ====== ПЛАВАЮЩАЯ НАВИГАЦИЯ ====== */
+  .bottom-nav{
+    position:fixed;left:0;right:0;bottom:0;
+    display:flex;
+    background:var(--panel);
+    border-top:1px solid var(--line);
+    padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+    z-index:100;
+    backdrop-filter:blur(10px);
+  }
+  .bottom-nav-inner{
+    max-width:820px;margin:0 auto;width:100%;
+    display:flex;
+  }
+  .nav-item{
+    flex:1;text-align:center;padding:6px 4px;
+    color:var(--muted);font-size:10px;font-weight:600;
+    display:flex;flex-direction:column;gap:3px;align-items:center;
+    cursor:pointer;transition:.15s;position:relative;
+  }
+  .nav-item.active{color:var(--accent)}
+  .nav-item .icon{font-size:20px}
+  .nav-item .badge{
+    position:absolute;top:2px;right:50%;margin-right:-22px;
+    background:var(--bad);color:#fff;
+    font-size:9px;font-weight:700;
+    min-width:16px;height:16px;padding:0 4px;
+    border-radius:99px;display:flex;align-items:center;justify-content:center;
+  }
+
+  /* ====== БЫСТРОЕ МЕНЮ ====== */
+  .backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,.5);
+    z-index:200;display:none;align-items:center;justify-content:center;
+    padding:20px;backdrop-filter:blur(2px);
+  }
+  .backdrop.open{display:flex;animation:fadeIn .15s ease-out}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  .quick-menu{
+    background:#1e242e;border:1px solid var(--line);
+    border-radius:16px;padding:8px;
+    box-shadow:0 16px 40px rgba(0,0,0,.6);
+    min-width:260px;max-width:100%;
+    animation:popIn .2s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes popIn{
+    from{opacity:0;transform:scale(.9)}
+    to{opacity:1;transform:scale(1)}
+  }
+  .quick-title{
+    font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:1px;
+    padding:8px 12px 6px;font-weight:600;
+  }
+  .quick-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 14px;border-radius:10px;
+    font-size:14px;font-weight:500;cursor:pointer;
+    transition:.1s;
+  }
+  .quick-item:hover{background:#2a3341}
+  .quick-item .qi-icon{font-size:18px;width:24px;text-align:center}
+  .quick-item.danger{color:var(--soft-red-text)}
+  .quick-item.danger:hover{background:rgba(229,72,77,.15)}
+
+  /* ====== МОДАЛКА КАРТОЧКИ ====== */
+  .dog-sheet{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    z-index:150;display:none;align-items:flex-end;justify-content:center;
+    backdrop-filter:blur(4px);
+  }
+  .dog-sheet.open{display:flex}
+  .dog-sheet-panel{
+    background:var(--bg);border:1px solid var(--line);border-bottom:none;
+    border-radius:22px 22px 0 0;
+    width:100%;max-width:820px;
+    max-height:90vh;overflow-y:auto;
+    padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+    animation:sheetUp .25s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes sheetUp{
+    from{transform:translateY(100%)}
+    to{transform:translateY(0)}
+  }
+  .dog-sheet-head{
+    display:flex;align-items:center;gap:14px;margin-bottom:16px;
+    padding-bottom:16px;border-bottom:1px solid var(--line);
+  }
+  .dog-sheet-head .avatar{
+    width:64px;height:64px;border-radius:50%;font-size:28px;
+  }
+  .dog-sheet-info{flex:1;min-width:0}
+  .dog-sheet-info .name{font-size:22px;font-weight:700}
+  .dog-sheet-info .breed{color:var(--muted);font-size:13px;margin-top:4px}
+  .sheet-close{
+    background:var(--panel2);border:1px solid var(--back-border);
+    color:var(--text);
+    width:36px;height:36px;border-radius:50%;
+    font-size:16px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;flex-shrink:0;
+  }
+
+  /* ====== СВОРАЧИВАЕМЫЕ БЛОКИ ====== */
+  .collapsible{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;margin-bottom:10px;overflow:hidden;
+  }
+  .coll-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;cursor:pointer;
+    user-select:none;-webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    transition:.15s;
+  }
+  .coll-head:hover{background:var(--panel3)}
+  .coll-head h3{
+    margin:0;font-size:14px;font-weight:600;
+    display:flex;align-items:center;gap:8px;
+  }
+  .coll-head .coll-cnt{
+    color:var(--muted);font-size:12px;font-weight:500;
+    margin-left:auto;margin-right:10px;
+  }
+  .coll-head .coll-arrow{
+    color:var(--muted);font-size:12px;
+    transition:transform .25s;
+  }
+  .collapsible.open .coll-head .coll-arrow{transform:rotate(180deg)}
+  .coll-body{
+    max-height:0;overflow:hidden;
+    transition:max-height .3s ease-out, padding .3s ease-out;
+    padding:0 16px;
+  }
+  .collapsible.open .coll-body{
+    max-height:800px;
+    padding:14px 16px;
+    border-top:1px solid var(--line);
+  }
+
+  /* внутри сворачиваемых блоков */
+  .info-row{display:flex;gap:8px;margin-bottom:10px;font-size:14px;line-height:1.5}
+  .info-row .lbl{color:var(--muted);min-width:70px;flex-shrink:0}
+  .visit-line{
+    padding:10px 0;border-bottom:1px solid var(--line);
+    font-size:13px;color:var(--muted);
+  }
+  .visit-line:last-child{border-bottom:none}
+  .visit-line b{color:var(--text);font-weight:600;margin-right:6px}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ШАПКА С ЛОГОТИПОМ -->
+  <div class="header">
+    <div class="logo-box">✂️</div>
+    <div class="header-text">
+      <h1>Груминг</h1>
+      <div class="sub-h">Клиенты · База</div>
+    </div>
+    <button class="theme-btn" title="Тема">🌙</button>
+  </div>
+
+  <!-- МИНИ-СТАТИСТИКА -->
+  <div class="mini-stats">
+    <div class="mini-stat">
+      <div class="ms-num">6</div>
+      <div class="ms-lbl">собак</div>
+    </div>
+    <div class="mini-stat">
+      <div class="ms-num">14</div>
+      <div class="ms-lbl">визитов</div>
+    </div>
+    <div class="mini-stat warn">
+      <div class="ms-num">3</div>
+      <div class="ms-lbl">давно не были</div>
+    </div>
+  </div>
+
+  <!-- ПОИСК -->
+  <div class="search-wrap">
+    <input class="search-input" type="text" placeholder="🔍 Поиск…">
+  </div>
+
+  <!-- СПИСОК -->
+  <div class="dog-list" id="dogList">
+    <!-- заполняется JS -->
+  </div>
+
+</div>
+
+<!-- ПЛАВАЮЩАЯ НАВИГАЦИЯ -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="nav-item active">
+      <span class="icon">🐕</span>
+      Собаки
+    </div>
+    <div class="nav-item">
+      <span class="icon">📊</span>
+      Стата
+    </div>
+    <div class="nav-item">
+      <span class="icon">🔔</span>
+      Напомнить
+      <span class="badge">3</span>
+    </div>
+    <div class="nav-item">
+      <span class="icon">⚙️</span>
+      Ещё
+    </div>
+  </div>
+</div>
+
+<!-- БЫСТРОЕ МЕНЮ -->
+<div class="backdrop" id="quickBackdrop">
+  <div class="quick-menu" id="quickMenu">
+    <div class="quick-title" id="quickTitle">Бублик</div>
+    <div class="quick-item" data-action="call">
+      <span class="qi-icon">📞</span> Позвонить
+    </div>
+    <div class="quick-item" data-action="add-visit">
+      <span class="qi-icon">📅</span> Добавить визит
+    </div>
+    <div class="quick-item" data-action="open">
+      <span class="qi-icon">👁</span> Открыть карточку
+    </div>
+    <div class="quick-item" data-action="edit">
+      <span class="qi-icon">✎</span> Изменить
+    </div>
+    <div class="quick-item danger" data-action="delete">
+      <span class="qi-icon">✕</span> Удалить
+    </div>
+  </div>
+</div>
+
+<!-- КАРТОЧКА СОБАКИ -->
+<div class="dog-sheet" id="dogSheet">
+  <div class="dog-sheet-panel" id="dogSheetPanel"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Тестовые данные
+  const DOGS = [
+    {
+      id: 1, name: 'Бублик', breed: 'Шпиц', owner: 'Анна',
+      phone: '+7 999 123-45-67',
+      notes: 'Спокойный пёс, даёт всё делать. Боится фена — сушим на низкой скорости.',
+      visits: [
+        { date: '05.07.2026', text: 'Стрижка корпуса, купание, когти' },
+        { date: '12.04.2026', text: 'Стрижка корпуса, купание' },
+        { date: '10.01.2026', text: 'Купание и сушка' },
+        { date: '20.11.2025', text: 'Стрижка под машинку 6 мм' },
+        { date: '15.09.2025', text: 'Первое посещение, гигиена' }
+      ],
+      lastDays: 8
+    },
+    {
+      id: 2, name: 'Жуля', breed: 'Норвич-терьер', owner: 'Мария',
+      phone: '+7 999 765-43-21',
+      notes: '',
+      visits: [
+        { date: '10.08.2026', text: 'Купание и сушка, гигиена' },
+        { date: '15.06.2026', text: 'Стрижка морды' },
+        { date: '20.04.2026', text: 'Гигиена' }
+      ],
+      lastDays: 68
+    },
+    {
+      id: 3, name: 'Пёсель', breed: 'Йорк', owner: 'Дмитрий',
+      phone: '+7 999 111-22-33',
+      notes: 'Кусается при сушке. Работать в наморднике.',
+      visits: [
+        { date: '10.06.2026', text: 'Стрижка морды и лап' },
+        { date: '05.04.2026', text: 'Купание' }
+      ],
+      lastDays: 128
+    },
+    {
+      id: 4, name: 'Поник', breed: 'Пудель', owner: 'Ольга',
+      phone: '',
+      notes: '',
+      visits: [
+        { date: '13.07.2026', text: 'Модельная стрижка, топ 30 минут' },
+        { date: '10.05.2026', text: 'Модельная стрижка' },
+        { date: '12.03.2026', text: 'Купание, сушка' },
+        { date: '05.01.2026', text: 'Гигиена' }
+      ],
+      lastDays: 95
+    },
+    {
+      id: 5, name: 'Собакер', breed: 'Мопс', owner: 'Игорь',
+      phone: '+7 999 555-66-77',
+      notes: 'Дал когти со второго раза.',
+      visits: [
+        { date: '12.10.2026', text: 'Купание, когти' }
+      ],
+      lastDays: 4
+    },
+    {
+      id: 6, name: 'Малыш', breed: 'Чихуахуа', owner: 'Ирина',
+      phone: '+7 999 888-99-00',
+      notes: '',
+      visits: [
+        { date: '14.10.2026', text: 'Гигиена, уши' },
+        { date: '20.09.2026', text: 'Купание' },
+        { date: '15.08.2026', text: 'Гигиена' }
+      ],
+      lastDays: 2
+    }
+  ];
+
+  const breedColor = (breed) => {
+    const b = (breed || '').toLowerCase();
+    if (b.includes('шпиц'))   return '#4c8dff';
+    if (b.includes('йорк'))   return '#2fbf71';
+    if (b.includes('пудел'))  return '#a78bfa';
+    if (b.includes('норвич')) return '#ffd166';
+    if (b.includes('чихуа'))  return '#7ee0e6';
+    if (b.includes('мопс'))   return '#ffa58c';
+    return '#4a5568';
+  };
+  const initials = (name) => String(name||'?').slice(0,1).toUpperCase();
+  const pluralVisits = (n) => {
+    const m10=n%10, m100=n%100;
+    if (m10===1 && m100!==11) return 'визит';
+    if (m10>=2 && m10<=4 && (m100<12||m100>14)) return 'визита';
+    return 'визитов';
+  };
+
+  // ====== РЕНДЕР СПИСКА ======
+  const dogList = document.getElementById('dogList');
+  dogList.innerHTML = DOGS.map(d => {
+    const warnCls = d.lastDays >= 90 ? 'warn' : (d.lastDays >= 60 ? 'warn-soon' : '');
+    let badge = '';
+    if (d.lastDays >= 90) {
+      badge = `<span class="ring-badge">🔔 ${d.lastDays} дн.</span>`;
+    } else if (d.lastDays >= 60) {
+      badge = `<span class="ring-badge soon">🔔 ${d.lastDays} дн.</span>`;
+    }
+    return `
+      <div class="dog-card ${warnCls}" data-id="${d.id}" style="border-left-color:${breedColor(d.breed)}">
+        <div class="avatar">${initials(d.name)}</div>
+        <div class="dog-info">
+          <div class="dog-name">${d.name}</div>
+          <div class="dog-meta">${d.breed} · ${d.owner}</div>
+        </div>
+        <div class="dog-right">
+          ${badge}
+          <span class="d-cnt">${d.visits.length} ${pluralVisits(d.visits.length)}</span>
+          <span class="d-date">${d.visits[0].date}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // ====== ДОЛГОЕ НАЖАТИЕ ======
+  let pressTimer = null;
+  let currentCardId = null;
+  const quickBackdrop = document.getElementById('quickBackdrop');
+  const quickTitle = document.getElementById('quickTitle');
+
+  function startPress(e, card) {
+    currentCardId = Number(card.dataset.id);
+    card.classList.add('press');
+    pressTimer = setTimeout(() => {
+      pressTimer = null;
+      card.classList.remove('press');
+      if (navigator.vibrate) navigator.vibrate(30);
+      openQuickMenu(currentCardId);
+    }, 500);
+  }
+  function cancelPress(card) {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+    if (card) card.classList.remove('press');
+  }
+
+  dogList.addEventListener('mousedown', e => {
+    const card = e.target.closest('.dog-card');
+    if (!card) return;
+    startPress(e, card);
+  });
+  dogList.addEventListener('touchstart', e => {
+    const card = e.target.closest('.dog-card');
+    if (!card) return;
+    startPress(e, card);
+  }, {passive: true});
+
+  dogList.addEventListener('mouseup', e => {
+    const card = e.target.closest('.dog-card');
+    cancelPress(card);
+  });
+  dogList.addEventListener('mouseleave', e => {
+    const card = e.target.closest('.dog-card');
+    cancelPress(card);
+  });
+  dogList.addEventListener('touchend', e => {
+    const card = e.target.closest('.dog-card');
+    cancelPress(card);
+  });
+  dogList.addEventListener('touchmove', e => {
+    const card = e.target.closest('.dog-card');
+    cancelPress(card);
+  });
+
+  // Обычный клик — открыть карточку
+  dogList.addEventListener('click', e => {
+    const card = e.target.closest('.dog-card');
+    if (!card) return;
+    if (pressTimer) {
+      // был тап — не открываем (долгое нажатие не сработало)
+      cancelPress(card);
+    }
+    openDogSheet(Number(card.dataset.id));
+  });
+
+  // ====== БЫСТРОЕ МЕНЮ ======
+  function openQuickMenu(id) {
+    const d = DOGS.find(x => x.id === id);
+    if (!d) return;
+    quickTitle.textContent = d.name;
+    quickBackdrop.classList.add('open');
+  }
+  quickBackdrop.addEventListener('click', e => {
+    if (e.target === quickBackdrop) {
+      quickBackdrop.classList.remove('open');
+    }
+  });
+  document.querySelectorAll('.quick-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const action = item.dataset.action;
+      const d = DOGS.find(x => x.id === currentCardId);
+      quickBackdrop.classList.remove('open');
+      if (!d) return;
+      if (action === 'open') {
+        openDogSheet(d.id);
+      } else if (action === 'call') {
+        alert('📞 Позвонить ' + d.owner + '\n' + (d.phone || 'телефон не указан'));
+      } else if (action === 'add-visit') {
+        alert('📅 Добавить визит для ' + d.name + '\n(тут откроется форма)');
+      } else if (action === 'edit') {
+        alert('✎ Редактирование ' + d.name + '\n(тут откроется форма)');
+      } else if (action === 'delete') {
+        if (confirm('Удалить «' + d.name + '»?')) {
+          alert('Удалено (в превью)');
+        }
+      }
+    });
+  });
+
+  // ====== КАРТОЧКА СОБАКИ (со сворачиваемыми блоками) ======
+  const dogSheet = document.getElementById('dogSheet');
+  const dogSheetPanel = document.getElementById('dogSheetPanel');
+
+  function openDogSheet(id) {
+    const d = DOGS.find(x => x.id === id);
+    if (!d) return;
+
+    const visitsHtml = d.visits.map(v => `
+      <div class="visit-line">
+        <b>${v.date}</b> ${v.text}
+      </div>
+    `).join('');
+
+    const notesHtml = d.notes
+      ? `<div style="font-size:14px;line-height:1.6;color:var(--text)">${d.notes}</div>`
+      : `<div style="font-size:13px;color:var(--muted);font-style:italic">Заметок нет</div>`;
+
+    const phoneHtml = d.phone
+      ? `<div class="info-row"><span class="lbl">Телефон</span><span style="color:var(--accent-text)">${d.phone}</span></div>`
+      : `<div class="info-row"><span class="lbl">Телефон</span><span style="color:var(--muted)">не указан</span></div>`;
+
+    dogSheetPanel.innerHTML = `
+      <div class="dog-sheet-head">
+        <div class="avatar" style="background:linear-gradient(135deg,${breedColor(d.breed)},#2fbf71)">${initials(d.name)}</div>
+        <div class="dog-sheet-info">
+          <div class="name">${d.name}</div>
+          <div class="breed">${d.breed} · ${d.owner}</div>
+        </div>
+        <button class="sheet-close" id="sheetCloseBtn">✕</button>
+      </div>
+
+      <!-- Сворачиваемый блок: История визитов -->
+      <div class="collapsible open" data-coll="visits">
+        <div class="coll-head">
+          <h3>📅 История визитов</h3>
+          <span class="coll-cnt">${d.visits.length} ${pluralVisits(d.visits.length)}</span>
+          <span class="coll-arrow">▼</span>
+        </div>
+        <div class="coll-body">${visitsHtml}</div>
+      </div>
+
+      <!-- Сворачиваемый блок: Заметки -->
+      <div class="collapsible" data-coll="notes">
+        <div class="coll-head">
+          <h3>💬 Заметки</h3>
+          <span class="coll-arrow">▼</span>
+        </div>
+        <div class="coll-body">${notesHtml}</div>
+      </div>
+
+      <!-- Сворачиваемый блок: Контакты -->
+      <div class="collapsible" data-coll="contacts">
+        <div class="coll-head">
+          <h3>📞 Контакты</h3>
+          <span class="coll-arrow">▼</span>
+        </div>
+        <div class="coll-body">
+          <div class="info-row"><span class="lbl">Хозяин</span><span>${d.owner}</span></div>
+          ${phoneHtml}
+        </div>
+      </div>
+    `;
+
+    // Обработчики сворачивания
+    dogSheetPanel.querySelectorAll('.collapsible').forEach(coll => {
+      const head = coll.querySelector('.coll-head');
+      head.addEventListener('click', () => {
+        coll.classList.toggle('open');
+      });
+    });
+
+    // Кнопка закрытия
+    const closeBtn = document.getElementById('sheetCloseBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeDogSheet);
+    }
+
+    dogSheet.classList.add('open');
+  }
+
+  function closeDogSheet() {
+    dogSheet.classList.remove('open');
+  }
+
+  dogSheet.addEventListener('click', e => {
+    if (e.target === dogSheet) closeDogSheet();
+  });
+
+  // ====== НАВИГАЦИЯ ВНИЗУ (заглушка) ======
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
