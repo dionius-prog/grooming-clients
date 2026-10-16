@@ -11,8 +11,7 @@
     --line:#2a3341; --text:#e8edf5; --muted:#8b97a8;
     --accent:#4c8dff; --accent-soft:#243046; --accent-text:#9dc0ff;
     --accent-shadow:rgba(76,141,255,.45);
-    --input-bg:#12161e; --dd-menu-bg:#1e242e; --dd-hover-bg:#2a3341;
-    --back-border:#37414f;
+    --input-bg:#12161e; --back-border:#37414f;
     --ok:#2fbf71; --bad:#e5484d; --money:#ffd166;
     --soft-blue:rgba(76,141,255,.15); --soft-blue-text:#9dc0ff;
     --soft-purple:rgba(167,139,250,.15); --soft-purple-text:#c4b5fd;
@@ -34,8 +33,6 @@
     padding-top:env(safe-area-inset-top);
     padding-bottom:calc(140px + env(safe-area-inset-bottom));
   }
-
-  /* ====== ШАПКА С ЛОГОТИПОМ ====== */
   .header{
     display:flex;align-items:center;gap:12px;
     padding:16px 0 12px;
@@ -68,8 +65,6 @@
     display:flex;align-items:center;justify-content:center;
     padding:0;flex-shrink:0;
   }
-
-  /* ====== МИНИ-СТАТИСТИКА ====== */
   .mini-stats{
     display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
     margin-bottom:14px;
@@ -88,8 +83,6 @@
     margin-top:5px;
   }
   .mini-stat.warn .ms-num{color:var(--soft-red-text)}
-
-  /* ====== ПОИСК ====== */
   .search-wrap{margin-bottom:10px}
   .search-input{
     width:100%;padding:12px 14px;font:inherit;
@@ -97,8 +90,6 @@
     border-radius:12px;outline:none;
   }
   .search-input:focus{border-color:var(--accent)}
-
-  /* ====== СПИСОК ====== */
   .dog-list{display:flex;flex-direction:column;gap:10px}
   .dog-card{
     display:flex;align-items:center;gap:14px;
@@ -107,8 +98,7 @@
     border-left:5px solid #4a5568;
     cursor:pointer;transition:.15s;
     position:relative;
-    user-select:none;
-    -webkit-user-select:none;
+    user-select:none;-webkit-user-select:none;
     -webkit-tap-highlight-color:transparent;
     animation:cardIn .38s cubic-bezier(.2,.7,.3,1) backwards;
   }
@@ -122,12 +112,10 @@
   .dog-list > .dog-card:nth-child(4){animation-delay:.14s}
   .dog-list > .dog-card:nth-child(5){animation-delay:.18s}
   .dog-list > .dog-card:nth-child(6){animation-delay:.22s}
-
   .dog-card:hover{filter:brightness(1.05)}
   .dog-card.warn-soon{border-left-color:var(--money)}
   .dog-card.warn{border-left-color:var(--bad)}
   .dog-card.press{transform:scale(.98);filter:brightness(1.1)}
-
   .avatar{
     background:linear-gradient(135deg,#4c8dff,#2fbf71);
     display:flex;align-items:center;justify-content:center;
@@ -153,8 +141,6 @@
     box-shadow:0 0 0 2px var(--panel);
   }
   .ring-badge.soon{background:var(--money);color:#3a2a00}
-
-  /* ====== ПЛАВАЮЩАЯ НАВИГАЦИЯ ====== */
   .bottom-nav{
     position:fixed;left:0;right:0;bottom:0;
     display:flex;
@@ -183,8 +169,6 @@
     min-width:16px;height:16px;padding:0 4px;
     border-radius:99px;display:flex;align-items:center;justify-content:center;
   }
-
-  /* ====== БЫСТРОЕ МЕНЮ ====== */
   .backdrop{
     position:fixed;inset:0;background:rgba(0,0,0,.5);
     z-index:200;display:none;align-items:center;justify-content:center;
@@ -192,7 +176,6 @@
   }
   .backdrop.open{display:flex;animation:fadeIn .15s ease-out}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-
   .quick-menu{
     background:#1e242e;border:1px solid var(--line);
     border-radius:16px;padding:8px;
@@ -219,8 +202,6 @@
   .quick-item .qi-icon{font-size:18px;width:24px;text-align:center}
   .quick-item.danger{color:var(--soft-red-text)}
   .quick-item.danger:hover{background:rgba(229,72,77,.15)}
-
-  /* ====== МОДАЛКА КАРТОЧКИ ====== */
   .dog-sheet{
     position:fixed;inset:0;background:rgba(0,0,0,.6);
     z-index:150;display:none;align-items:flex-end;justify-content:center;
@@ -257,8 +238,6 @@
     display:flex;align-items:center;justify-content:center;
     padding:0;flex-shrink:0;
   }
-
-  /* ====== СВОРАЧИВАЕМЫЕ БЛОКИ ====== */
   .collapsible{
     background:var(--panel);border:1px solid var(--line);
     border-radius:14px;margin-bottom:10px;overflow:hidden;
@@ -294,8 +273,6 @@
     padding:14px 16px;
     border-top:1px solid var(--line);
   }
-
-  /* внутри сворачиваемых блоков */
   .info-row{display:flex;gap:8px;margin-bottom:10px;font-size:14px;line-height:1.5}
   .info-row .lbl{color:var(--muted);min-width:70px;flex-shrink:0}
   .visit-line{
@@ -309,8 +286,6 @@
 <body>
 
 <div class="app">
-
-  <!-- ШАПКА С ЛОГОТИПОМ -->
   <div class="header">
     <div class="logo-box">✂️</div>
     <div class="header-text">
@@ -320,7 +295,6 @@
     <button class="theme-btn" title="Тема">🌙</button>
   </div>
 
-  <!-- МИНИ-СТАТИСТИКА -->
   <div class="mini-stats">
     <div class="mini-stat">
       <div class="ms-num">6</div>
@@ -336,19 +310,13 @@
     </div>
   </div>
 
-  <!-- ПОИСК -->
   <div class="search-wrap">
     <input class="search-input" type="text" placeholder="🔍 Поиск…">
   </div>
 
-  <!-- СПИСОК -->
-  <div class="dog-list" id="dogList">
-    <!-- заполняется JS -->
-  </div>
-
+  <div class="dog-list" id="dogList"></div>
 </div>
 
-<!-- ПЛАВАЮЩАЯ НАВИГАЦИЯ -->
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
     <div class="nav-item active">
@@ -371,7 +339,6 @@
   </div>
 </div>
 
-<!-- БЫСТРОЕ МЕНЮ -->
 <div class="backdrop" id="quickBackdrop">
   <div class="quick-menu" id="quickMenu">
     <div class="quick-title" id="quickTitle">Бублик</div>
@@ -393,7 +360,6 @@
   </div>
 </div>
 
-<!-- КАРТОЧКА СОБАКИ -->
 <div class="dog-sheet" id="dogSheet">
   <div class="dog-sheet-panel" id="dogSheetPanel"></div>
 </div>
@@ -402,7 +368,6 @@
 (function(){
   "use strict";
 
-  // Тестовые данные
   const DOGS = [
     {
       id: 1, name: 'Бублик', breed: 'Шпиц', owner: 'Анна',
@@ -490,33 +455,28 @@
     return 'визитов';
   };
 
-  // ====== РЕНДЕР СПИСКА ======
   const dogList = document.getElementById('dogList');
   dogList.innerHTML = DOGS.map(d => {
     const warnCls = d.lastDays >= 90 ? 'warn' : (d.lastDays >= 60 ? 'warn-soon' : '');
     let badge = '';
     if (d.lastDays >= 90) {
-      badge = `<span class="ring-badge">🔔 ${d.lastDays} дн.</span>`;
+      badge = '<span class="ring-badge">🔔 ' + d.lastDays + ' дн.</span>';
     } else if (d.lastDays >= 60) {
-      badge = `<span class="ring-badge soon">🔔 ${d.lastDays} дн.</span>`;
+      badge = '<span class="ring-badge soon">🔔 ' + d.lastDays + ' дн.</span>';
     }
-    return `
-      <div class="dog-card ${warnCls}" data-id="${d.id}" style="border-left-color:${breedColor(d.breed)}">
-        <div class="avatar">${initials(d.name)}</div>
-        <div class="dog-info">
-          <div class="dog-name">${d.name}</div>
-          <div class="dog-meta">${d.breed} · ${d.owner}</div>
-        </div>
-        <div class="dog-right">
-          ${badge}
-          <span class="d-cnt">${d.visits.length} ${pluralVisits(d.visits.length)}</span>
-          <span class="d-date">${d.visits[0].date}</span>
-        </div>
-      </div>
-    `;
+    return '<div class="dog-card ' + warnCls + '" data-id="' + d.id + '" style="border-left-color:' + breedColor(d.breed) + '">' +
+      '<div class="avatar">' + initials(d.name) + '</div>' +
+      '<div class="dog-info">' +
+        '<div class="dog-name">' + d.name + '</div>' +
+        '<div class="dog-meta">' + d.breed + ' · ' + d.owner + '</div>' +
+      '</div>' +
+      '<div class="dog-right">' + badge +
+        '<span class="d-cnt">' + d.visits.length + ' ' + pluralVisits(d.visits.length) + '</span>' +
+        '<span class="d-date">' + d.visits[0].date + '</span>' +
+      '</div>' +
+    '</div>';
   }).join('');
 
-  // ====== ДОЛГОЕ НАЖАТИЕ ======
   let pressTimer = null;
   let currentCardId = null;
   const quickBackdrop = document.getElementById('quickBackdrop');
@@ -550,36 +510,28 @@
     if (!card) return;
     startPress(e, card);
   }, {passive: true});
-
   dogList.addEventListener('mouseup', e => {
-    const card = e.target.closest('.dog-card');
-    cancelPress(card);
+    cancelPress(e.target.closest('.dog-card'));
   });
   dogList.addEventListener('mouseleave', e => {
-    const card = e.target.closest('.dog-card');
-    cancelPress(card);
+    cancelPress(e.target.closest('.dog-card'));
   });
   dogList.addEventListener('touchend', e => {
-    const card = e.target.closest('.dog-card');
-    cancelPress(card);
+    cancelPress(e.target.closest('.dog-card'));
   });
   dogList.addEventListener('touchmove', e => {
-    const card = e.target.closest('.dog-card');
-    cancelPress(card);
+    cancelPress(e.target.closest('.dog-card'));
   });
 
-  // Обычный клик — открыть карточку
   dogList.addEventListener('click', e => {
     const card = e.target.closest('.dog-card');
     if (!card) return;
     if (pressTimer) {
-      // был тап — не открываем (долгое нажатие не сработало)
       cancelPress(card);
     }
     openDogSheet(Number(card.dataset.id));
   });
 
-  // ====== БЫСТРОЕ МЕНЮ ======
   function openQuickMenu(id) {
     const d = DOGS.find(x => x.id === id);
     if (!d) return;
@@ -602,9 +554,9 @@
       } else if (action === 'call') {
         alert('📞 Позвонить ' + d.owner + '\n' + (d.phone || 'телефон не указан'));
       } else if (action === 'add-visit') {
-        alert('📅 Добавить визит для ' + d.name + '\n(тут откроется форма)');
+        alert('📅 Добавить визит для ' + d.name);
       } else if (action === 'edit') {
-        alert('✎ Редактирование ' + d.name + '\n(тут откроется форма)');
+        alert('✎ Редактирование ' + d.name);
       } else if (action === 'delete') {
         if (confirm('Удалить «' + d.name + '»?')) {
           alert('Удалено (в превью)');
@@ -613,7 +565,6 @@
     });
   });
 
-  // ====== КАРТОЧКА СОБАКИ (со сворачиваемыми блоками) ======
   const dogSheet = document.getElementById('dogSheet');
   const dogSheetPanel = document.getElementById('dogSheetPanel');
 
@@ -621,63 +572,52 @@
     const d = DOGS.find(x => x.id === id);
     if (!d) return;
 
-    const visitsHtml = d.visits.map(v => `
-      <div class="visit-line">
-        <b>${v.date}</b> ${v.text}
-      </div>
-    `).join('');
-
+    const visitsHtml = d.visits.map(v => '<div class="visit-line"><b>' + v.date + '</b> ' + v.text + '</div>').join('');
     const notesHtml = d.notes
-      ? `<div style="font-size:14px;line-height:1.6;color:var(--text)">${d.notes}</div>`
-      : `<div style="font-size:13px;color:var(--muted);font-style:italic">Заметок нет</div>`;
-
+      ? '<div style="font-size:14px;line-height:1.6;color:var(--text)">' + d.notes + '</div>'
+      : '<div style="font-size:13px;color:var(--muted);font-style:italic">Заметок нет</div>';
     const phoneHtml = d.phone
-      ? `<div class="info-row"><span class="lbl">Телефон</span><span style="color:var(--accent-text)">${d.phone}</span></div>`
-      : `<div class="info-row"><span class="lbl">Телефон</span><span style="color:var(--muted)">не указан</span></div>`;
+      ? '<div class="info-row"><span class="lbl">Телефон</span><span style="color:var(--accent-text)">' + d.phone + '</span></div>'
+      : '<div class="info-row"><span class="lbl">Телефон</span><span style="color:var(--muted)">не указан</span></div>';
 
-    dogSheetPanel.innerHTML = `
-      <div class="dog-sheet-head">
-        <div class="avatar" style="background:linear-gradient(135deg,${breedColor(d.breed)},#2fbf71)">${initials(d.name)}</div>
-        <div class="dog-sheet-info">
-          <div class="name">${d.name}</div>
-          <div class="breed">${d.breed} · ${d.owner}</div>
-        </div>
-        <button class="sheet-close" id="sheetCloseBtn">✕</button>
-      </div>
+    dogSheetPanel.innerHTML =
+      '<div class="dog-sheet-head">' +
+        '<div class="avatar" style="background:linear-gradient(135deg,' + breedColor(d.breed) + ',#2fbf71)">' + initials(d.name) + '</div>' +
+        '<div class="dog-sheet-info">' +
+          '<div class="name">' + d.name + '</div>' +
+          '<div class="breed">' + d.breed + ' · ' + d.owner + '</div>' +
+        '</div>' +
+        '<button class="sheet-close" id="sheetCloseBtn">✕</button>' +
+      '</div>' +
 
-      <!-- Сворачиваемый блок: История визитов -->
-      <div class="collapsible open" data-coll="visits">
-        <div class="coll-head">
-          <h3>📅 История визитов</h3>
-          <span class="coll-cnt">${d.visits.length} ${pluralVisits(d.visits.length)}</span>
-          <span class="coll-arrow">▼</span>
-        </div>
-        <div class="coll-body">${visitsHtml}</div>
-      </div>
+      '<div class="collapsible open" data-coll="visits">' +
+        '<div class="coll-head">' +
+          '<h3>📅 История визитов</h3>' +
+          '<span class="coll-cnt">' + d.visits.length + ' ' + pluralVisits(d.visits.length) + '</span>' +
+          '<span class="coll-arrow">▼</span>' +
+        '</div>' +
+        '<div class="coll-body">' + visitsHtml + '</div>' +
+      '</div>' +
 
-      <!-- Сворачиваемый блок: Заметки -->
-      <div class="collapsible" data-coll="notes">
-        <div class="coll-head">
-          <h3>💬 Заметки</h3>
-          <span class="coll-arrow">▼</span>
-        </div>
-        <div class="coll-body">${notesHtml}</div>
-      </div>
+      '<div class="collapsible" data-coll="notes">' +
+        '<div class="coll-head">' +
+          '<h3>💬 Заметки</h3>' +
+          '<span class="coll-arrow">▼</span>' +
+        '</div>' +
+        '<div class="coll-body">' + notesHtml + '</div>' +
+      '</div>' +
 
-      <!-- Сворачиваемый блок: Контакты -->
-      <div class="collapsible" data-coll="contacts">
-        <div class="coll-head">
-          <h3>📞 Контакты</h3>
-          <span class="coll-arrow">▼</span>
-        </div>
-        <div class="coll-body">
-          <div class="info-row"><span class="lbl">Хозяин</span><span>${d.owner}</span></div>
-          ${phoneHtml}
-        </div>
-      </div>
-    `;
+      '<div class="collapsible" data-coll="contacts">' +
+        '<div class="coll-head">' +
+          '<h3>📞 Контакты</h3>' +
+          '<span class="coll-arrow">▼</span>' +
+        '</div>' +
+        '<div class="coll-body">' +
+          '<div class="info-row"><span class="lbl">Хозяин</span><span>' + d.owner + '</span></div>' +
+          phoneHtml +
+        '</div>' +
+      '</div>';
 
-    // Обработчики сворачивания
     dogSheetPanel.querySelectorAll('.collapsible').forEach(coll => {
       const head = coll.querySelector('.coll-head');
       head.addEventListener('click', () => {
@@ -685,7 +625,6 @@
       });
     });
 
-    // Кнопка закрытия
     const closeBtn = document.getElementById('sheetCloseBtn');
     if (closeBtn) {
       closeBtn.addEventListener('click', closeDogSheet);
@@ -702,7 +641,6 @@
     if (e.target === dogSheet) closeDogSheet();
   });
 
-  // ====== НАВИГАЦИЯ ВНИЗУ (заглушка) ======
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
