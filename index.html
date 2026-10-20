@@ -752,6 +752,7 @@
       if ((v.clipperBody || '').toLowerCase().includes(q)) return true;
       if ((v.clipperPaws || '').toLowerCase().includes(q)) return true;
       if ((v.services || '').toLowerCase().includes(q)) return true;
+      if ((v.shampoo || '').toLowerCase().includes(q)) return true;
       if ((v.notes || '').toLowerCase().includes(q)) return true;
     }
     return false;
@@ -1272,7 +1273,7 @@
     visitFormTitle.textContent = visit ? 'Изменить визит' : 'Новый визит';
     fVisitDate.value     = visit ? (visit.date || todayISO()) : todayISO();
     fVisitServices.value = visit ? (visit.services || '') : '';
-    VisitShampoo.value  = visit ? (visit.shampoo || '') : '';
+    fVisitShampoo.value  = visit ? (visit.shampoo || '') : '';
     fVisitNotes.value    = visit ? (visit.notes || '') : '';
     tempPhotoBefore      = visit ? (visit.photoBefore || null) : null;
     tempPhotoAfter       = visit ? (visit.photoAfter  || null) : null;
