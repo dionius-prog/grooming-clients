@@ -35,6 +35,7 @@
     --ok:#2fbf71; --bad:#e5484d; --money:#ffd166; --purple:#a78bfa; --teal:#7ee0e6; --orange:#ffa58c;
     --soft-blue:rgba(76,141,255,.15); --soft-blue-text:#9dc0ff;
     --soft-purple:rgba(167,139,250,.15); --soft-purple-text:#c4b5fd;
+    --soft-pink:rgba(255,158,203,.15); --soft-pink-text:#ff9ecb;
     --soft-teal:rgba(126,224,230,.15); --soft-teal-text:#b8f0f4;
     --soft-yellow:rgba(255,209,102,.15); --soft-yellow-text:#ffe4a3;
     --soft-green:rgba(47,191,113,.12); --soft-green-text:#b8ffd0;
@@ -51,6 +52,7 @@
     --ok:#1a9d5a; --bad:#d63a3f; --money:#b8860b; --purple:#7c5dd6; --teal:#2a9bab; --orange:#d96b4a;
     --soft-blue:rgba(59,124,230,.12); --soft-blue-text:#2a5db8;
     --soft-purple:rgba(124,93,214,.12); --soft-purple-text:#5b3fb5;
+    --soft-pink:rgba(219,39,119,.12); --soft-pink-text:#be185d;
     --soft-teal:rgba(42,155,171,.12); --soft-teal-text:#1a7080;
     --soft-yellow:rgba(201,147,26,.15); --soft-yellow-text:#8a6400;
     --soft-green:rgba(26,157,90,.12); --soft-green-text:#146c3e;
@@ -198,6 +200,7 @@
   .dog-list.v5 .d-badge.mm-paws{background:var(--soft-purple);color:var(--soft-purple-text)}
   .dog-list.v5 .d-badge.services{background:var(--soft-teal);color:var(--soft-teal-text)}
   .dog-list.v5 .d-badge.notes{background:var(--soft-yellow);color:var(--soft-yellow-text)}
+  .dog-list.v5 .d-badge.shampoo{background:var(--soft-pink);color:var(--soft-pink-text)}
   .dog-list.v5 .d-badge.date{background:var(--panel2);color:var(--muted);margin-left:auto}
 
   .dog-list.v6{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -646,16 +649,26 @@
     if (url) return `<div class="avatar"><img src="${url}" alt="${esc(d.name)}"></div>`;
     return `<div class="avatar">${esc(initials(d.name))}</div>`;
   }
-  function breedColor(d){
-    const b = (d.breed || '').toLowerCase();
+   function breedColor(d){
+    const b = (d.breed || '').toLowerCase().trim();
+    if (!b) return '#4a5568'; // Серый, если порода вообще не указана
+
+    // Цвета для популярных пород (чтобы было красиво)
     if (b.includes('шпиц'))   return '#4c8dff';
     if (b.includes('йорк'))   return '#2fbf71';
     if (b.includes('пудел'))  return '#a78bfa';
     if (b.includes('норвич')) return '#ffd166';
     if (b.includes('чихуа'))  return '#7ee0e6';
     if (b.includes('мопс'))   return '#ffa58c';
-    if (b.includes('мальтез'))return '#ff9ecb';
-    return '#4a5568';
+    if (b.includes('мальтезе'))return '#ff9ecb';
+
+    // А для ВСЕХ ОСТАЛЬНЫХ (введенных вручную) генерируем уникальный цвет
+    let hash = 0;
+    for (let i = 0; i < b.length; i++) {
+      hash = b.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360; // Вычисляем оттенок от 0 до 360
+    return `hsl(${hue}, 70%, 60%)`; // Выдаем насыщенный цвет
   }
   function breedClass(d){
     const b = (d.breed || '').toLowerCase();
@@ -945,6 +958,7 @@
       let bottom = '';
       if (lastV){
         if (lastV.services) bottom += `<span class="d-badge services"><span class="bi">📝</span><span class="bt">${esc(lastV.services)}</span></span>`;
+        if (lastV.shampoo)  bottom += `<span class="d-badge shampoo"><span class="bi">🧴</span><span class="bt">${esc(lastV.shampoo)}</span></span>`;
         if (lastV.notes)    bottom += `<span class="d-badge notes"><span class="bi">💬</span><span class="bt">${esc(lastV.notes)}</span></span>`;
       }
 
