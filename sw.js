@@ -1,4 +1,4 @@
-const CACHE = 'clients-v8';
+const CACHE = 'clients-v88';
 const ASSETS = [
   './',
   './index.html',
