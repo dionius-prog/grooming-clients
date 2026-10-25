@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Клиенты">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
 <script>
   (function(){
@@ -289,6 +290,21 @@
     <button id="backBtn" class="back" hidden>←</button>
     <h1 id="screenTitle">✂️ Клиенты</h1>
     <button id="themeBtn" class="theme-btn" title="Сменить тему">🌙</button>
+    
+    <div class="dropdown-wrap" id="settingsWrap" style="flex: 0 0 auto;">
+      <button class="theme-btn" id="settingsBtn" title="Настройки" style="font-size: 24px; padding-bottom: 8px; font-weight: bold;">⋮</button>
+      <div class="dd-menu" id="settingsMenu" style="width: 150px; left: auto; right: 0;">
+        <div class="dd-item" id="exportBtn">
+          <div class="dd-icon">📤</div>
+          <div class="dd-blk"><div class="dd-name">Экспорт</div></div>
+        </div>
+        <div class="dd-item" id="importBtn">
+          <div class="dd-icon">📥</div>
+          <div class="dd-blk"><div class="dd-name">Импорт</div></div>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display: none;">
   </header>
 
   <section id="screenList" class="screen active">
@@ -451,7 +467,7 @@
 </div>
 
 <script>
-(function(){
+  (function(){
   "use strict";
 
   const LS_KEY      = 'grooming_clients_v1';
@@ -477,6 +493,13 @@
   const screenTitle = $('screenTitle');
   const backBtn     = $('backBtn');
   const themeBtn    = $('themeBtn');
+  
+  const settingsWrap = $('settingsWrap');
+  const settingsBtn  = $('settingsBtn');
+  const exportBtn    = $('exportBtn');
+  const importBtn    = $('importBtn');
+  const importFile   = $('importFile');
+
   const screens     = {
     list:       $('screenList'),
     dog:        $('screenDog'),
@@ -578,6 +601,17 @@
   }
   themeBtn.addEventListener('click', toggleTheme);
 
+  settingsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (settingsWrap.classList.contains('open')) {
+      closeAllDropdowns();
+    } else {
+      closeAllDropdowns();
+      settingsWrap.classList.add('open');
+      ddBackdrop.classList.add('open');
+    }
+  });
+
   /* ===== базовые функции ===== */
   function todayISO(){
     const d = new Date();
@@ -651,9 +685,7 @@
   }
    function breedColor(d){
     const b = (d.breed || '').toLowerCase().trim();
-    if (!b) return '#4a5568'; // Серый, если порода вообще не указана
-
-    // Цвета для популярных пород (чтобы было красиво)
+    if (!b) return '#4a5568';
     if (b.includes('шпиц'))   return '#4c8dff';
     if (b.includes('йорк'))   return '#2fbf71';
     if (b.includes('пудел'))  return '#a78bfa';
@@ -661,14 +693,12 @@
     if (b.includes('чихуа'))  return '#7ee0e6';
     if (b.includes('мопс'))   return '#ffa58c';
     if (b.includes('мальтезе'))return '#ff9ecb';
-
-    // А для ВСЕХ ОСТАЛЬНЫХ (введенных вручную) генерируем уникальный цвет
     let hash = 0;
     for (let i = 0; i < b.length; i++) {
       hash = b.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const hue = Math.abs(hash) % 360; // Вычисляем оттенок от 0 до 360
-    return `hsl(${hue}, 70%, 60%)`; // Выдаем насыщенный цвет
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 70%, 60%)`;
   }
   function breedClass(d){
     const b = (d.breed || '').toLowerCase();
@@ -687,34 +717,53 @@
   function cleanMm(s){
     return String(s || '').trim().replace(/[^\d.,\s]/g, '');
   }
-  function save(){
+
+  // Настройка "большого склада" (IndexedDB)
+  localforage.config({
+    name: 'GroomingApp',
+    storeName: 'grooming_data'
+  });
+
+  async function load(){
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-    } catch(e){
-      alert('Не удалось сохранить. Возможно, закончилось место в памяти браузера.\n\nПопробуйте удалить старые визиты с фото.');
-    }
-  }
-  function load(){
-    try {
+      const savedState = await localforage.getItem('grooming_state');
+      
+      if (savedState && Array.isArray(savedState.dogs)) {
+        state = savedState;
+        state.dogs.forEach(d => {
+          (d.visits || []).forEach(v => {
+            if (v.clipperMm && !v.clipperBody){
+              v.clipperBody = v.clipperMm;
+              delete v.clipperMm;
+            }
+          });
+        });
+        return;
+      }
+
       const raw = localStorage.getItem(LS_KEY);
       if (raw){
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.dogs)){
           state = parsed;
-          state.dogs.forEach(d => {
-            (d.visits || []).forEach(v => {
-              if (v.clipperMm && !v.clipperBody){
-                v.clipperBody = v.clipperMm;
-                delete v.clipperMm;
-              }
-            });
-          });
+          await save();
           return;
         }
       }
-    } catch(e){}
+    } catch(e){
+      console.error('Ошибка загрузки:', e);
+    }
     state = { dogs: [] };
   }
+
+  async function save(){
+    try {
+      await localforage.setItem('grooming_state', state);
+    } catch(e){
+      alert('Не удалось сохранить данные. Возможно, на телефоне закончилось место.');
+    }
+  }
+
   function loadSort(){
     try {
       const s = localStorage.getItem(LS_SORT_KEY);
@@ -808,6 +857,7 @@
   function closeAllDropdowns(){
     sortWrap.classList.remove('open');
     viewWrap.classList.remove('open');
+    settingsWrap.classList.remove('open');
     ddBackdrop.classList.remove('open');
   }
   function openDropdown(which){
@@ -1464,13 +1514,70 @@
     showDog(d.id);
   });
 
-  applyTheme(getSavedTheme());
-  load();
-  loadSort();
-  loadView();
-  updateToolBtns();
-  renderList();
-  showScreen('list', '✂️ Клиенты');
+  /* ===== БЭКАП ===== */
+  exportBtn.addEventListener('click', () => {
+    closeAllDropdowns();
+    if (!state.dogs || state.dogs.length === 0) {
+      alert('Нет данных для сохранения.');
+      return;
+    }
+    const dataStr = JSON.stringify(state, null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    
+    const date = new Date().toISOString().slice(0,10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grooming_backup_${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  importBtn.addEventListener('click', () => {
+    closeAllDropdowns();
+    importFile.click();
+  });
+
+  importFile.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!confirm('Внимание! Загрузка файла заменит ВСЕ текущие данные. Продолжить?')) {
+      importFile.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target.result);
+        if (parsed && Array.isArray(parsed.dogs)) {
+          state = parsed;
+          save();
+          renderList();
+          alert('База успешно загружена! Собак в базе: ' + state.dogs.length);
+        } else {
+          alert('Ошибка: неверный формат файла.');
+        }
+      } catch (err) {
+        alert('Ошибка при чтении файла.');
+      }
+      importFile.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  (async function init() {
+    applyTheme(getSavedTheme());
+    await load();
+    loadSort();
+    loadView();
+    updateToolBtns();
+    renderList();
+    showScreen('list', '✂️ Клиенты');
+  })();
 
 })();
 </script>
