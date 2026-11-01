@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Груминг — клиенты</title>
+<title>Груминг — собаки</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d1016">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Клиенты">
+<meta name="apple-mobile-web-app-title" content="Собаки">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
@@ -288,7 +288,7 @@
 
   <header>
     <button id="backBtn" class="back" hidden>←</button>
-    <h1 id="screenTitle">✂️ Клиенты</h1>
+    <h1 id="screenTitle">✂️ Собаки</h1>
     <button id="themeBtn" class="theme-btn" title="Сменить тему">🌙</button>
     
     <div class="dropdown-wrap" id="settingsWrap" style="flex: 0 0 auto;">
@@ -377,9 +377,6 @@
 
       <label for="fDogOwner">Хозяин</label>
       <input id="fDogOwner" type="text" placeholder="Имя владельца">
-
-      <label for="fDogPhone">Телефон</label>
-      <input id="fDogPhone" type="tel" placeholder="+7 …">
 
       <label for="fDogNotes">Описание</label>
       <textarea id="fDogNotes" placeholder="Особенности характера, аллергии, любит/не любит…"></textarea>
@@ -486,7 +483,8 @@
 
   const SORTS = [
     { id: 'name', name: 'По алфавиту',    icon: '🔤', hint: 'Бублик, Жуля, Пёсель…' },
-    { id: 'date', name: 'По дате визита', icon: '📅', hint: 'Свежие визиты сверху' }
+    { id: 'date', name: 'По дате визита', icon: '📅', hint: 'Свежие визиты сверху' },
+    { id: 'breed', name: 'По породе',     icon: '🐶', hint: 'Сначала шпицы, потом йорки…' }
   ];
 
   const $ = id => document.getElementById(id);
@@ -538,7 +536,6 @@
   const fDogName    = $('fDogName');
   const fDogBreed   = $('fDogBreed');
   const fDogOwner   = $('fDogOwner');
-  const fDogPhone   = $('fDogPhone');
   const fDogNotes   = $('fDogNotes');
   const errDogName  = $('errDogName');
 
@@ -767,7 +764,7 @@
   function loadSort(){
     try {
       const s = localStorage.getItem(LS_SORT_KEY);
-      if (s === 'name' || s === 'date') sortMode = s;
+      if (s === 'name' || s === 'date' || s === 'breed') sortMode = s;
     } catch(e){}
   }
   function saveSort(){ try { localStorage.setItem(LS_SORT_KEY, sortMode); } catch(e){} }
@@ -790,7 +787,7 @@
 
   backBtn.addEventListener('click', () => {
     const active = Object.keys(screens).find(k => screens[k].classList.contains('active'));
-    if (active === 'dog') showScreen('list', '✂️ Клиенты');
+    if (active === 'dog') showScreen('list', '✂️ Собаки');
     else if (active === 'dogForm') showDog(currentDogId);
     else if (active === 'visitForm' || active === 'visitView') showDog(currentDogId);
   });
@@ -800,7 +797,6 @@
     if ((d.name  || '').toLowerCase().includes(q)) return true;
     if ((d.breed || '').toLowerCase().includes(q)) return true;
     if ((d.owner || '').toLowerCase().includes(q)) return true;
-    if ((d.phone || '').toLowerCase().includes(q)) return true;
 
     for (const v of (d.visits || [])){
       const iso = v.date || '';
@@ -840,6 +836,15 @@
         if (!da) return 1;
         if (!db) return -1;
         return db.localeCompare(da);
+      });
+    } else if (sortMode === 'breed') {
+      arr.sort((a, b) => {
+        const ba = (a.breed || '').trim().toLowerCase();
+        const bb = (b.breed || '').trim().toLowerCase();
+        if (ba === bb) return (a.name || '').localeCompare(b.name || '', 'ru');
+        if (!ba) return 1;
+        if (!bb) return -1;
+        return ba.localeCompare(bb, 'ru');
       });
     } else {
       arr.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
@@ -1092,7 +1097,7 @@
 
   function showDog(id){
     const d = findDog(id);
-    if (!d){ showScreen('list', '✂️ Клиенты'); return; }
+    if (!d){ showScreen('list', '✂️ Собаки'); return; }
     currentDogId = d.id;
 
     const avatarUrl = dogAvatarUrl(d);
@@ -1105,7 +1110,6 @@
 
     let infoHtml = '';
     if (d.owner) infoHtml += `<div class="info-row"><span class="lbl">Хозяин</span><span>${esc(d.owner)}</span></div>`;
-    if (d.phone) infoHtml += `<div class="info-row"><span class="lbl">Телефон</span><span><a href="tel:${esc(d.phone)}" style="color:var(--accent-text);text-decoration:none">${esc(d.phone)}</a></span></div>`;
     if (d.notes) infoHtml += `<div class="info-row"><span class="lbl">Описание</span><span style="white-space:pre-wrap">${esc(d.notes)}</span></div>`;
     dogInfoView.innerHTML = infoHtml;
 
@@ -1164,7 +1168,6 @@
     fDogName.value  = dog ? (dog.name || '') : '';
     fDogBreed.value = dog ? (dog.breed || '') : '';
     fDogOwner.value = dog ? (dog.owner || '') : '';
-    fDogPhone.value = dog ? (dog.phone || '') : '';
     fDogNotes.value = dog ? (dog.notes || '') : '';
     errDogName.classList.remove('show');
     showScreen('dogForm', dog ? 'Изменить' : 'Новая собака');
@@ -1179,7 +1182,7 @@
 
   $('cancelDogForm').addEventListener('click', () => {
     if (editingDogId) showDog(editingDogId);
-    else showScreen('list', '✂️ Клиенты');
+    else showScreen('list', '✂️ Собаки');
   });
 
   $('saveDogForm').addEventListener('click', () => {
@@ -1197,7 +1200,6 @@
         d.name  = name;
         d.breed = fDogBreed.value.trim();
         d.owner = fDogOwner.value.trim();
-        d.phone = fDogPhone.value.trim();
         d.notes = fDogNotes.value.trim();
       }
       save();
@@ -1208,7 +1210,6 @@
         name,
         breed: fDogBreed.value.trim(),
         owner: fDogOwner.value.trim(),
-        phone: fDogPhone.value.trim(),
         notes: fDogNotes.value.trim(),
         createdAt: Date.now(),
         visits: []
@@ -1227,7 +1228,7 @@
     state.dogs = state.dogs.filter(x => x.id !== d.id);
     save();
     renderList();
-    showScreen('list', '✂️ Клиенты');
+    showScreen('list', '✂️ Собаки');
   });
 
   function renderPhotoSlot(el, dataUrl, which){
@@ -1576,7 +1577,7 @@
     loadView();
     updateToolBtns();
     renderList();
-    showScreen('list', '✂️ Клиенты');
+    showScreen('list', '✂️ Собаки');
   })();
 
 })();
