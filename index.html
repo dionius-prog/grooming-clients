@@ -554,7 +554,44 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-  exportBtn.addEventListener('click',()=>{closeAllDropdowns();if(!state.dogs||state.dogs.length===0){alert('Нет данных для сохранения.');return;}const dataStr=JSON.stringify(state,null,2);const blob=new Blob([dataStr],{type:"application/json"});const url=URL.createObjectURL(blob);const date=new Date().toISOString().slice(0,10);const a=document.createElement('a');a.href=url;a.download=`grooming_backup_${date}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);});
+    exportBtn.addEventListener('click', async () => {
+    closeAllDropdowns();
+    if (!state.dogs || state.dogs.length === 0) {
+      alert('Нет данных для сохранения.');
+      return;
+    }
+    
+    const dataStr = JSON.stringify(state, null, 2);
+    const date = new Date().toISOString().slice(0,10);
+    const fileName = `grooming_backup_${date}.json`;
+
+    if (navigator.share && navigator.canShare) {
+      try {
+        const file = new File([dataStr], fileName, {type: "application/json"});
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Бэкап базы',
+            text: 'Файл с базой питомцев'
+          });
+          return; 
+        }
+      } catch (err) {
+        console.log('Ошибка Share, пробуем скачать:', err);
+      }
+    }
+
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  });
   importBtn.addEventListener('click',()=>{closeAllDropdowns();importFile.click();});
   importFile.addEventListener('change',(e)=>{const file=e.target.files[0];if(!file)return;if(!confirm('Внимание! Загрузка файла заменит ВСЕ текущие данные. Продолжить?')){importFile.value='';return;}const reader=new FileReader();reader.onload=(event)=>{try{const parsed=JSON.parse(event.target.result);if(parsed&&Array.isArray(parsed.dogs)){state=parsed;save();renderList();alert('База успешно загружена! Питомцев в базе: '+state.dogs.length);}else{alert('Ошибка: неверный формат файла.');}}catch(err){alert('Ошибка при чтении файла.');}importFile.value='';};reader.readAsText(file);});
   
