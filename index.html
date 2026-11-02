@@ -554,12 +554,38 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-    exportBtn.addEventListener('click', async () => {
+     exportBtn.addEventListener('click', () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
       return;
     }
+    
+    const dataStr = JSON.stringify(state, null, 2);
+    const date = new Date().toISOString().slice(0,10);
+    const fileName = `grooming_backup_${date}.txt`;
+
+    // Принудительное скачивание через файл
+    const blob = new Blob([dataStr], {type: "text/plain"});
+    const url = URL.createObjectURL(blob);
+    
+    // Создаем невидимую ссылку и кликаем по ней
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    
+    // Убираем ссылку
+    document.body.removeChild(a);
+    
+    // Очищаем память
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    
+    // Показываем подсказку
+    alert('Файл сохранен в папку "Загрузки" (или "Downloads") на телефоне. Ищите его там!');
+  });
     
     const dataStr = JSON.stringify(state, null, 2);
     const date = new Date().toISOString().slice(0,10);
