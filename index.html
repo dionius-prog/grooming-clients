@@ -254,7 +254,7 @@
         <div class="dd-item" id="importBtn"><div class="dd-icon">📥</div><div class="dd-blk"><div class="dd-name">Импорт</div></div></div>
       </div>
     </div>
-    <input type="file" id="importFile" accept=".json" style="display: none;">
+    <input type="file" id="importFile" accept=".json,.txt" style="display: none;">
   </header>
   <section id="screenList" class="screen active">
     <div class="search-wrap"><input id="searchInput" type="text" placeholder="🔍 Кличка, порода, хозяин, дата, мм…" autocomplete="off"></div>
@@ -567,7 +567,8 @@
 
     if (navigator.share && navigator.canShare) {
       try {
-        const file = new File([dataStr], fileName, {type: "application/json"});
+        const txtFileName = fileName.replace('.json', '.txt');
+        const file = new File([dataStr], txtFileName, {type: "text/plain"});
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
@@ -585,7 +586,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName;
+    a.download = txtFileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
