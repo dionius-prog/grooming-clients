@@ -254,7 +254,7 @@
         <div class="dd-item" id="importBtn"><div class="dd-icon">📥</div><div class="dd-blk"><div class="dd-name">Импорт</div></div></div>
       </div>
     </div>
-    <input type="file" id="importFile" accept=".json,.txt" style="display: none;">
+    <input type="file" id="importFile" accept=".json" style="display: none;">
   </header>
   <section id="screenList" class="screen active">
     <div class="search-wrap"><input id="searchInput" type="text" placeholder="🔍 Кличка, порода, хозяин, дата, мм…" autocomplete="off"></div>
@@ -554,7 +554,7 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-     exportBtn.addEventListener('click', () => {
+    exportBtn.addEventListener('click', async () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
@@ -563,38 +563,11 @@
     
     const dataStr = JSON.stringify(state, null, 2);
     const date = new Date().toISOString().slice(0,10);
-    const fileName = `grooming_backup_${date}.txt`;
-
-    // Принудительное скачивание через файл
-    const blob = new Blob([dataStr], {type: "text/plain"});
-    const url = URL.createObjectURL(blob);
-    
-    // Создаем невидимую ссылку и кликаем по ней
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    
-    // Убираем ссылку
-    document.body.removeChild(a);
-    
-    // Очищаем память
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-    
-    // Показываем подсказку
-    alert('Файл сохранен в папку "Загрузки" (или "Downloads") на телефоне. Ищите его там!');
-  });
-    
-    const dataStr = JSON.stringify(state, null, 2);
-    const date = new Date().toISOString().slice(0,10);
     const fileName = `grooming_backup_${date}.json`;
 
     if (navigator.share && navigator.canShare) {
       try {
-        const txtFileName = fileName.replace('.json', '.txt');
-        const file = new File([dataStr], txtFileName, {type: "text/plain"});
+        const file = new File([dataStr], fileName, {type: "application/json"});
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
@@ -612,7 +585,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = txtFileName;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
