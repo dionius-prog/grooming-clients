@@ -258,8 +258,16 @@
 </head>
 <body>
   <div id="splashScreen">
-  <video id="splashVideo" src="splash.mp4" autoplay muted playsinline></video>
-</div>
+    <video id="splashVideo" src="splash.mp4" autoplay muted playsinline
+           onended="document.getElementById('splashScreen').classList.add('hidden')"></video>
+  </div>
+  <script>
+    // Страховка: если видео не загрузится или onended не сработает — скрыть заставку через 10 секунд
+    setTimeout(function () {
+      var s = document.getElementById('splashScreen');
+      if (s) s.classList.add('hidden');
+    }, 10000);
+  </script>
 <div class="app">
   <header>
     <button id="backBtn" class="back" hidden>←</button>
