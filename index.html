@@ -580,34 +580,32 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-    exportBtn.addEventListener('click', async () => {
+      exportBtn.addEventListener('click', async () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
       return;
     }
-    
-    const dataStr = JSON.stringify(state, null, 2);
-    const date = new Date().toISOString().slice(0,10);
-    const fileName = `grooming_backup_${date}.txt`;
 
-    if (navigator.share && navigator.canShare) {
-      try {
-        const file = new File([dataStr], fileName, {type: "text/plain"});
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'Бэкап базы',
-            text: 'Файл с базой питомцев'
-          });
-          return; 
-        }
-      } catch (err) {
-        console.log('Ошибка Share, пробуем скачать:', err);
+    const dataStr = JSON.stringify(state, null, 2);
+    const date = new Date().toISOString().slice(0, 10);
+    const fileName = `grooming_backup_${date}.txt`;
+    const blob = new Blob([dataStr], { type: 'text/plain;charset=utf-8' });
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    // iOS: <a download> с blob не работает — открываем в новой вкладке
+    if (isIOS) {
+      const url = URL.createObjectURL(blob);
+      const w = window.open(url, '_blank');
+      if (!w) {
+        alert('Не удалось открыть файл. Разрешите всплывающие окна.');
       }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return;
     }
 
-    const blob = new Blob([dataStr], {type: "text/plain"});
+    // Android / десктоп: прямое скачивание в «Загрузки», без меню «Поделиться»
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -615,7 +613,6 @@
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   });
   importBtn.addEventListener('click',()=>{closeAllDropdowns();importFile.click();});
