@@ -605,7 +605,29 @@
       return;
     }
 
-    // Android / десктоп: прямое скачивание в «Загрузки», без меню «Поделиться»
+        // 1. Пробуем современный системный диалог сохранения (Android/Chrome)
+    if ('showSaveFilePicker' in window) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'Текстовый файл',
+            accept: {'text/plain': ['.txt']},
+          }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(dataStr);
+        await writable.close();
+        return; // Успешно сохранили!
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          return; // Пользователь сам нажал "Отмена"
+        }
+        console.error('Ошибка системного сохранения, пробуем обычный способ:', err);
+      }
+    }
+
+    // 2. Старый способ (если первый не сработал)
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
