@@ -580,7 +580,7 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-        exportBtn.addEventListener('click', () => {
+          exportBtn.addEventListener('click', async () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
@@ -589,54 +589,41 @@
 
     const dataStr = JSON.stringify(state, null, 2);
 
-    // Создаем всплывающее окно на весь экран
+    // СПОСОБ 1: Системное меню "Поделиться" (самый надежный на Android)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Бэкап базы питомцев',
+          text: dataStr
+        });
+        return; // Если меню открылось и ты отправил — всё, выходим
+      } catch (err) {
+        if (err.name === 'AbortError') return; // Ты сам закрыл меню
+        console.log('Share не сработал:', err);
+      }
+    }
+
+    // СПОСОБ 2: Резервное окно (если меню "Поделиться" недоступно)
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;padding:20px;display:flex;flex-direction:column;gap:15px;';
 
     const title = document.createElement('div');
-    title.textContent = 'Бэкап базы (нажми "Копировать", затем вставь в Заметки или себе в мессенджер):';
-    title.style.cssText = 'color:#fff;font-size:16px;font-weight:bold;text-align:center;';
+    title.textContent = 'ЗАЖМИ текст ниже пальцем, выбери "Выделить всё" -> "Копировать" (или скопируй и вставь вручную):';
+    title.style.cssText = 'color:#fff;font-size:15px;font-weight:bold;text-align:center;line-height:1.4;';
 
     const textarea = document.createElement('textarea');
     textarea.value = dataStr;
+    textarea.readOnly = true;
     textarea.style.cssText = 'flex:1;width:100%;border-radius:10px;padding:10px;font-family:monospace;font-size:12px;resize:none;';
-
-    const btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'display:flex;gap:10px;';
-
-        const btnCopy = document.createElement('button');
-    btnCopy.textContent = '📋 Копировать';
-    btnCopy.style.cssText = 'flex:1;padding:15px;background:#4c8dff;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:16px;';
-    btnCopy.onclick = async () => {
-      try {
-        // Современный метод копирования (работает в Chrome)
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(dataStr);
-          btnCopy.textContent = '✅ Скопировано!';
-        } else {
-          // Старый метод как запасной вариант
-          textarea.select();
-          textarea.setSelectionRange(0, 999999); // для телефонов
-          document.execCommand('copy');
-          btnCopy.textContent = '✅ Скопировано!';
-        }
-      } catch (err) {
-        // Если система вообще запретила копировать — просим сделать это вручную
-        alert('Не удалось скопировать автоматически. Пожалуйста, зажмите текст пальцем и выберите "Выделить всё" -> "Копировать".');
-      }
-    };
 
     const btnClose = document.createElement('button');
     btnClose.textContent = 'Закрыть';
-    btnClose.style.cssText = 'flex:1;padding:15px;background:#e5484d;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:16px;';
+    btnClose.style.cssText = 'width:100%;padding:15px;background:#e5484d;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:16px;';
     btnClose.onclick = () => document.body.removeChild(overlay);
-
-    btnWrap.appendChild(btnCopy);
-    btnWrap.appendChild(btnClose);
 
     overlay.appendChild(title);
     overlay.appendChild(textarea);
-    overlay.appendChild(btnWrap);
+    overlay.appendChild(btnClose);
     document.body.appendChild(overlay);
   });
   importBtn.addEventListener('click',()=>{closeAllDropdowns();importFile.click();});
