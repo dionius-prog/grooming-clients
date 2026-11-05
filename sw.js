@@ -1,10 +1,11 @@
-const CACHE = 'clients-v16';
+const CACHE = 'clients-v17';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './splash.mp4'
 ];
 
 self.addEventListener('install', e => {
