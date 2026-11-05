@@ -280,7 +280,7 @@
         <div class="dd-item" id="importBtn"><div class="dd-icon">📥</div><div class="dd-blk"><div class="dd-name">Импорт</div></div></div>
       </div>
     </div>
-    <input type="file" id="importFile" accept=".json" style="display: none;">
+    <input type="file" id="importFile" accept=".json,.txt,text/plain,application/json" style="display: none;">
   </header>
   <section id="screenList" class="screen active">
     <div class="search-wrap"><input id="searchInput" type="text" placeholder="🔍 Кличка, порода, хозяин, дата, мм…" autocomplete="off"></div>
@@ -589,11 +589,11 @@
     
     const dataStr = JSON.stringify(state, null, 2);
     const date = new Date().toISOString().slice(0,10);
-    const fileName = `grooming_backup_${date}.json`;
+    const fileName = `grooming_backup_${date}.txt`;
 
     if (navigator.share && navigator.canShare) {
       try {
-        const file = new File([dataStr], fileName, {type: "application/json"});
+        const file = new File([dataStr], fileName, {type: "text/plain"});
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
@@ -607,7 +607,7 @@
       }
     }
 
-    const blob = new Blob([dataStr], {type: "application/json"});
+    const blob = new Blob([dataStr], {type: "text/plain"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
