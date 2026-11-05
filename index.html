@@ -580,7 +580,7 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-      exportBtn.addEventListener('click', async () => {
+        exportBtn.addEventListener('click', () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
@@ -588,54 +588,43 @@
     }
 
     const dataStr = JSON.stringify(state, null, 2);
-    const date = new Date().toISOString().slice(0, 10);
-    const fileName = `grooming_backup_${date}.txt`;
-    const blob = new Blob([dataStr], { type: 'text/plain;charset=utf-8' });
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Создаем всплывающее окно на весь экран
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;padding:20px;display:flex;flex-direction:column;gap:15px;';
 
-    // iOS: <a download> с blob не работает — открываем в новой вкладке
-    if (isIOS) {
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url, '_blank');
-      if (!w) {
-        alert('Не удалось открыть файл. Разрешите всплывающие окна.');
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-      return;
-    }
+    const title = document.createElement('div');
+    title.textContent = 'Бэкап базы (нажми "Копировать", затем вставь в Заметки или себе в мессенджер):';
+    title.style.cssText = 'color:#fff;font-size:16px;font-weight:bold;text-align:center;';
 
-        // 1. Пробуем современный системный диалог сохранения (Android/Chrome)
-    if ('showSaveFilePicker' in window) {
-      try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: fileName,
-          types: [{
-            description: 'Текстовый файл',
-            accept: {'text/plain': ['.txt']},
-          }],
-        });
-        const writable = await handle.createWritable();
-        await writable.write(dataStr);
-        await writable.close();
-        return; // Успешно сохранили!
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          return; // Пользователь сам нажал "Отмена"
-        }
-        console.error('Ошибка системного сохранения, пробуем обычный способ:', err);
-      }
-    }
+    const textarea = document.createElement('textarea');
+    textarea.value = dataStr;
+    textarea.style.cssText = 'flex:1;width:100%;border-radius:10px;padding:10px;font-family:monospace;font-size:12px;resize:none;';
 
-    // 2. Старый способ (если первый не сработал)
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'display:flex;gap:10px;';
+
+    const btnCopy = document.createElement('button');
+    btnCopy.textContent = '📋 Копировать';
+    btnCopy.style.cssText = 'flex:1;padding:15px;background:#4c8dff;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:16px;';
+    btnCopy.onclick = () => {
+      textarea.select();
+      document.execCommand('copy');
+      btnCopy.textContent = '✅ Скопировано!';
+    };
+
+    const btnClose = document.createElement('button');
+    btnClose.textContent = 'Закрыть';
+    btnClose.style.cssText = 'flex:1;padding:15px;background:#e5484d;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:16px;';
+    btnClose.onclick = () => document.body.removeChild(overlay);
+
+    btnWrap.appendChild(btnCopy);
+    btnWrap.appendChild(btnClose);
+
+    overlay.appendChild(title);
+    overlay.appendChild(textarea);
+    overlay.appendChild(btnWrap);
+    document.body.appendChild(overlay);
   });
   importBtn.addEventListener('click',()=>{closeAllDropdowns();importFile.click();});
   importFile.addEventListener('change',(e)=>{const file=e.target.files[0];if(!file)return;if(!confirm('Внимание! Загрузка файла заменит ВСЕ текущие данные. Продолжить?')){importFile.value='';return;}const reader=new FileReader();reader.onload=(event)=>{try{const parsed=JSON.parse(event.target.result);if(parsed&&Array.isArray(parsed.dogs)){state=parsed;save();renderList();alert('База успешно загружена! Питомцев в базе: '+state.dogs.length);}else{alert('Ошибка: неверный формат файла.');}}catch(err){alert('Ошибка при чтении файла.');}importFile.value='';};reader.readAsText(file);});
