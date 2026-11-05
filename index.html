@@ -604,13 +604,26 @@
     const btnWrap = document.createElement('div');
     btnWrap.style.cssText = 'display:flex;gap:10px;';
 
-    const btnCopy = document.createElement('button');
+        const btnCopy = document.createElement('button');
     btnCopy.textContent = '📋 Копировать';
     btnCopy.style.cssText = 'flex:1;padding:15px;background:#4c8dff;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:16px;';
-    btnCopy.onclick = () => {
-      textarea.select();
-      document.execCommand('copy');
-      btnCopy.textContent = '✅ Скопировано!';
+    btnCopy.onclick = async () => {
+      try {
+        // Современный метод копирования (работает в Chrome)
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(dataStr);
+          btnCopy.textContent = '✅ Скопировано!';
+        } else {
+          // Старый метод как запасной вариант
+          textarea.select();
+          textarea.setSelectionRange(0, 999999); // для телефонов
+          document.execCommand('copy');
+          btnCopy.textContent = '✅ Скопировано!';
+        }
+      } catch (err) {
+        // Если система вообще запретила копировать — просим сделать это вручную
+        alert('Не удалось скопировать автоматически. Пожалуйста, зажмите текст пальцем и выберите "Выделить всё" -> "Копировать".');
+      }
     };
 
     const btnClose = document.createElement('button');
