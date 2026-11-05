@@ -605,7 +605,21 @@
       return;
     }
 
-    // Android / десктоп: прямое скачивание в «Загрузки», без меню «Поделиться»
+        // Android / десктоп: пробуем Data URI, чтобы сохранить имя файла
+    try {
+      const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(dataStr);
+      const a = document.createElement('a');
+      a.href = dataUri;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    } catch (e) {
+      console.log('Data URI не сработал, пробуем Blob:', e);
+    }
+
+    // Запасной вариант: Blob (имя может стать download.txt)
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
