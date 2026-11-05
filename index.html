@@ -502,7 +502,7 @@
   
   function renderCardForView(d){const last=getLastVisitDate(d),lastV=getLastVisit(d),cnt=(d.visits||[]).length,agoText=last?daysAgoText(last):'',agoShort=last?daysAgoTextShort(last):'',agoCls=last?daysAgoClass(last):'',name=esc(d.name),breed=esc(d.breed||''),owner=esc(d.owner||''),meta=breed+(breed&&owner?' · ':'')+owner;
     if(viewMode==='v1')return`${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><div class="dog-right"><span class="d-cnt">${cnt}</span>${last?`${fmtDateShort(last)}<span class="d-ago ${agoCls}">${agoText}</span>`:'—'}</div>`;
-    if(viewMode==='v2')return`<div style="display:flex;align-items:center;gap:14px;width:100%">${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><div class="dog-right"><span class="d-cnt">${cnt} ${pluralVisits(cnt)}</span>${last?`<span class="d-date">${fmtDateShort(last)}</span><span class="d-ago ${agoCls}" style="display:block;margin-top:2px">${agoText}</span>`:'—'}</div></div>`;}
+    if(viewMode==='v2')return`<div style="display:flex;align-items:center;gap:14px;width:100%">${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><div class="dog-right"><span class="d-cnt">${cnt} ${pluralVisits(cnt)}</span>${last?`<span class="d-date">${fmtDateShort(last)}</span><span class="d-ago ${agoCls}" style="display:block;margin-top:2px">${agoText}</span>`:'—'}</div></div>`;
     if(viewMode==='v3'){const rows=[];if(lastV){if(lastV.clipperBody)rows.push(`<div class="t-row mm-body"><span class="t-icon">✂</span><span class="t-text">Корпус ${esc(lastV.clipperBody)} мм</span></div>`);if(lastV.clipperPaws)rows.push(`<div class="t-row mm-paws"><span class="t-icon">🐾</span><span class="t-text">Лапы ${esc(lastV.clipperPaws)} мм</span></div>`);if(lastV.services)rows.push(`<div class="t-row services"><span class="t-icon">📝</span><span class="t-text">${esc(lastV.services)}</span></div>`);if(lastV.notes)rows.push(`<div class="t-row notes"><span class="t-icon">💬</span><span class="t-text">${esc(lastV.notes)}</span></div>`);}if(!rows.length)rows.push(`<div class="t-row empty"><span class="t-text">нет данных</span></div>`);return`<div class="tile-head">${avatarHtml(d)}<div class="tile-name-blk"><div class="dog-name">${name}</div><div class="dog-meta">${breed||'без породы'}</div></div></div><div class="tile-row"><span class="d-date">${last?fmtDateShort(last):'—'}</span><span class="d-cnt">${cnt}</span></div><div class="tile-rows">${rows.join('')}</div>`;}
     if(viewMode==='v4'){const lastService=lastV&&lastV.services?lastV.services:'нет визитов';return`${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div><div class="d-last">${esc(lastService)}</div></div><div class="dog-right"><div class="d-cnt">${cnt}</div><div class="d-cnt-lbl">${pluralVisits(cnt)}</div>${last?`<div class="d-date">${fmtDateShort(last)}</div>`:''}</div>`;}
     if(viewMode==='v5'){const top=[];if(lastV){if(lastV.clipperBody)top.push(`<span class="d-badge mm-body"><span class="bi">✂</span><span class="bt">Корпус ${esc(lastV.clipperBody)} мм</span></span>`);if(lastV.clipperPaws)top.push(`<span class="d-badge mm-paws"><span class="bi">🐾</span><span class="bt">Лапы ${esc(lastV.clipperPaws)} мм</span></span>`);}if(last)top.push(`<span class="d-badge date">${fmtDateShort(last)}</span>`);if(!top.length)top.push(`<span class="d-badge">нет визитов</span>`);let bottom='';if(lastV){if(lastV.services)bottom+=`<span class="d-badge services"><span class="bi">📝</span><span class="bt">${esc(lastV.services)}</span></span>`;if(lastV.shampoo)bottom+=`<span class="d-badge shampoo"><span class="bi">🧴</span><span class="bt">${esc(lastV.shampoo)}</span></span>`;if(lastV.notes)bottom+=`<span class="d-badge notes"><span class="bi">💬</span><span class="bt">${esc(lastV.notes)}</span></span>`;}return`<div class="d-head">${avatarHtml(d)}<div class="dog-name-blk"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><span class="d-visits">${cnt} ${pluralVisits(cnt)}</span></div><div class="d-badges"><div class="d-badges-top">${top.join('')}</div>${bottom}</div>`;}
@@ -580,49 +580,34 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-  exportBtn.addEventListener('click', async () => {
+    exportBtn.addEventListener('click', async () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
       return;
     }
-
+    
     const dataStr = JSON.stringify(state, null, 2);
-    const date = new Date().toISOString().slice(0, 10);
+    const date = new Date().toISOString().slice(0,10);
     const fileName = `grooming_backup_${date}.json`;
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const file = new File([blob], fileName, { type: 'application/json' });
 
-    // 1. Web Share API — лучший путь на телефоне: даёт «Сохранить в Файлы»
-    if (navigator.share) {
+    if (navigator.share && navigator.canShare) {
       try {
-        await navigator.share({
-          files: [file],
-          title: 'Бэкап базы',
-          text: 'Файл с базой питомцев'
-        });
-        return;
+        const file = new File([dataStr], fileName, {type: "application/json"});
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Бэкап базы',
+            text: 'Файл с базой питомцев'
+          });
+          return; 
+        }
       } catch (err) {
-        // Пользователь сам закрыл меню — не считаем это ошибкой
-        if (err && err.name === 'AbortError') return;
-        console.log('Share не сработал, пробуем скачать:', err);
+        console.log('Ошибка Share, пробуем скачать:', err);
       }
     }
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-    // 2a. iOS: <a download> не работает с blob — открываем в новой вкладке
-    if (isIOS) {
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url, '_blank');
-      if (!w) {
-        alert('Не удалось открыть файл. Разрешите всплывающие окна или воспользуйтесь меню «Поделиться».');
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-      return;
-    }
-
-    // 2b. Android / десктоп: обычное скачивание в «Загрузки»
+    const blob = new Blob([dataStr], {type: "application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -630,6 +615,7 @@
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   });
   importBtn.addEventListener('click',()=>{closeAllDropdowns();importFile.click();});
