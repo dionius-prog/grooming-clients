@@ -336,6 +336,11 @@
       <input id="fDogOwner" type="text" placeholder="Имя владельца">
       <label for="fDogNotes">Описание</label>
       <textarea id="fDogNotes" placeholder="Особенности характера, аллергии, любит/не любит…"></textarea>
+      <div id="dupWarning" style="display: none; background: rgba(255, 209, 102, 0.15); color: #ffe4a3; padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 15px; border: 1px solid rgba(255, 209, 102, 0.3); line-height: 1.4;">
+        ⚠️ <b>Такой питомец уже есть в базе!</b><br>
+        <span id="dupText" style="font-size: 12px; margin-top: 5px; display: block;"></span>
+        <br>Нажмите «Сохранить» ещё раз, если хотите добавить дубль.
+      </div>
       <div class="form-actions">
         <button id="cancelDogForm" class="ghost">Отмена</button>
         <button id="saveDogForm" class="primary">Сохранить</button>
@@ -502,7 +507,7 @@
   
   function renderCardForView(d){const last=getLastVisitDate(d),lastV=getLastVisit(d),cnt=(d.visits||[]).length,agoText=last?daysAgoText(last):'',agoShort=last?daysAgoTextShort(last):'',agoCls=last?daysAgoClass(last):'',name=esc(d.name),breed=esc(d.breed||''),owner=esc(d.owner||''),meta=breed+(breed&&owner?' · ':'')+owner;
     if(viewMode==='v1')return`${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><div class="dog-right"><span class="d-cnt">${cnt}</span>${last?`${fmtDateShort(last)}<span class="d-ago ${agoCls}">${agoText}</span>`:'—'}</div>`;
-    if(viewMode==='v2')return`<div style="display:flex;align-items:center;gap:14px;width:100%">${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><div class="dog-right"><span class="d-cnt">${cnt} ${pluralVisits(cnt)}</span>${last?`<span class="d-date">${fmtDateShort(last)}</span><span class="d-ago ${agoCls}" style="display:block;margin-top:2px">${agoText}</span>`:'—'}</div></div>`;
+    if(viewMode==='v2')return`<div style="display:flex;align-items:center;gap:14px;width:100%">${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><div class="dog-right"><span class="d-cnt">${cnt} ${pluralVisits(cnt)}</span>${last?`<span class="d-date">${fmtDateShort(last)}</span><span class="d-ago ${agoCls}" style="display:block;margin-top:2px">${agoText}</span>`:'—'}</div></div>`;}
     if(viewMode==='v3'){const rows=[];if(lastV){if(lastV.clipperBody)rows.push(`<div class="t-row mm-body"><span class="t-icon">✂</span><span class="t-text">Корпус ${esc(lastV.clipperBody)} мм</span></div>`);if(lastV.clipperPaws)rows.push(`<div class="t-row mm-paws"><span class="t-icon">🐾</span><span class="t-text">Лапы ${esc(lastV.clipperPaws)} мм</span></div>`);if(lastV.services)rows.push(`<div class="t-row services"><span class="t-icon">📝</span><span class="t-text">${esc(lastV.services)}</span></div>`);if(lastV.notes)rows.push(`<div class="t-row notes"><span class="t-icon">💬</span><span class="t-text">${esc(lastV.notes)}</span></div>`);}if(!rows.length)rows.push(`<div class="t-row empty"><span class="t-text">нет данных</span></div>`);return`<div class="tile-head">${avatarHtml(d)}<div class="tile-name-blk"><div class="dog-name">${name}</div><div class="dog-meta">${breed||'без породы'}</div></div></div><div class="tile-row"><span class="d-date">${last?fmtDateShort(last):'—'}</span><span class="d-cnt">${cnt}</span></div><div class="tile-rows">${rows.join('')}</div>`;}
     if(viewMode==='v4'){const lastService=lastV&&lastV.services?lastV.services:'нет визитов';return`${avatarHtml(d)}<div class="dog-info"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div><div class="d-last">${esc(lastService)}</div></div><div class="dog-right"><div class="d-cnt">${cnt}</div><div class="d-cnt-lbl">${pluralVisits(cnt)}</div>${last?`<div class="d-date">${fmtDateShort(last)}</div>`:''}</div>`;}
     if(viewMode==='v5'){const top=[];if(lastV){if(lastV.clipperBody)top.push(`<span class="d-badge mm-body"><span class="bi">✂</span><span class="bt">Корпус ${esc(lastV.clipperBody)} мм</span></span>`);if(lastV.clipperPaws)top.push(`<span class="d-badge mm-paws"><span class="bi">🐾</span><span class="bt">Лапы ${esc(lastV.clipperPaws)} мм</span></span>`);}if(last)top.push(`<span class="d-badge date">${fmtDateShort(last)}</span>`);if(!top.length)top.push(`<span class="d-badge">нет визитов</span>`);let bottom='';if(lastV){if(lastV.services)bottom+=`<span class="d-badge services"><span class="bi">📝</span><span class="bt">${esc(lastV.services)}</span></span>`;if(lastV.shampoo)bottom+=`<span class="d-badge shampoo"><span class="bi">🧴</span><span class="bt">${esc(lastV.shampoo)}</span></span>`;if(lastV.notes)bottom+=`<span class="d-badge notes"><span class="bi">💬</span><span class="bt">${esc(lastV.notes)}</span></span>`;}return`<div class="d-head">${avatarHtml(d)}<div class="dog-name-blk"><div class="dog-name">${name}</div><div class="dog-meta">${meta}</div></div><span class="d-visits">${cnt} ${pluralVisits(cnt)}</span></div><div class="d-badges"><div class="d-badges-top">${top.join('')}</div>${bottom}</div>`;}
@@ -539,6 +544,7 @@
     fDogOwner.value=dog?(dog.owner||''):'';
     fDogNotes.value=dog?(dog.notes||''):'';
     errDogName.classList.remove('show');
+    document.getElementById('dupWarning').style.display = 'none';
     showScreen('dogForm',dog?'Изменить':'Новый питомец');
     setTimeout(()=>fDogName.focus(),100);
   }
@@ -551,6 +557,29 @@
     const name=fDogName.value.trim();
     if(!name){errDogName.classList.add('show');fDogName.focus();return;}
     errDogName.classList.remove('show');
+
+    // --- ПРОВЕРКА НА ДУБЛИ ---
+    const breed = fDogBreed.value.trim().toLowerCase();
+    const owner = fDogOwner.value.trim().toLowerCase();
+    const warning = document.getElementById('dupWarning');
+
+    if (!editingDogId && warning.style.display === 'none') {
+      const matches = state.dogs.filter(d => 
+        d.name.trim().toLowerCase() === name.toLowerCase() &&
+        (d.breed || '').trim().toLowerCase() === breed &&
+        (d.owner || '').trim().toLowerCase() === owner
+      );
+
+      if (matches.length > 0) {
+        const info = matches.map(d => `• ${d.name} (${d.breed || 'без породы'}, ${d.owner || 'без хозяина'})`).join('<br>');
+        document.getElementById('dupText').innerHTML = info;
+        warning.style.display = 'block';
+        return; // Останавливаем сохранение
+      }
+    }
+    warning.style.display = 'none';
+    // --- КОНЕЦ ПРОВЕРКИ ---
+
     if(editingDogId){
       const d=findDog(editingDogId);
       if(d){d.name=name;d.breed=fDogBreed.value.trim();d.owner=fDogOwner.value.trim();d.notes=fDogNotes.value.trim();}
