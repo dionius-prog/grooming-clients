@@ -574,10 +574,6 @@
         const info = matches.map(d => `• ${d.name} (${d.breed || 'без породы'}, ${d.owner || 'без хозяина'})`).join('<br>');
         document.getElementById('dupText').innerHTML = info;
         warning.style.display = 'block';
-        
-        // Прокручиваем экран к предупреждению, чтобы его точно было видно
-        warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
         return; // Останавливаем сохранение
       }
     }
