@@ -242,7 +242,7 @@
   
   /* Стили для кастомного списка пород */
   .custom-select-wrap { position: relative; }
-    .custom-dd-menu {
+  .custom-dd-menu {
     position: absolute; top: calc(100% + 4px); left: 0; right: 0;
     background: var(--dd-menu-bg); border: 1px solid var(--line);
     border-radius: 10px; max-height: 200px; overflow-y: auto; z-index: 100; display: none;
@@ -561,30 +561,34 @@
   const breedInput = document.getElementById('fDogBreed');
   const breedDropdown = document.getElementById('breedDropdown');
 
+  function closeBreeds() {
+    breedDropdown.style.display = 'none';
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
+  }
+
   function renderBreeds(filter = '') {
     const lowerFilter = filter.toLowerCase();
     const filtered = BREEDS_LIST.filter(b => b.toLowerCase().includes(lowerFilter));
     if (filtered.length === 0) {
-      breedDropdown.style.display = 'none';
+      closeBreeds();
       return;
     }
+    
     breedDropdown.innerHTML = filtered.map(b => `<div class="custom-dd-item">${b}</div>`).join('');
     
     Array.from(breedDropdown.children).forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
         breedInput.value = item.textContent;
-        breedDropdown.style.display = 'none';
-        breedInput.blur(); // Скрываем клавиатуру после выбора
+        closeBreeds();
+        breedInput.blur();
       });
     });
 
-    // Умное позиционирование с учетом клавиатуры
     const rect = breedInput.getBoundingClientRect();
-    // visualViewport.height учитывает клавиатуру, innerHeight - нет
     const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     
-    // Если поле находится в нижней половине видимой области - открываем вверх
     if (rect.top > viewportHeight / 2) {
       breedDropdown.style.top = 'auto';
       breedDropdown.style.bottom = 'calc(100% + 4px)';
@@ -594,14 +598,19 @@
     }
 
     breedDropdown.style.display = 'block';
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
   }
 
   if (breedInput) {
+    breedDropdown.addEventListener('touchmove', (e) => {
+      e.stopPropagation();
+    }, { passive: false });
+
     breedInput.addEventListener('focus', () => {
-      // Ждем 350мс, пока клавиатура вылезет и изменит высоту экрана
       setTimeout(() => {
         renderBreeds(breedInput.value);
-        // Прокручиваем так, чтобы поле было по центру
         breedInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 350);
     });
@@ -610,7 +619,7 @@
     
     document.addEventListener('click', (e) => {
       if (!breedInput.contains(e.target) && !breedDropdown.contains(e.target)) {
-        breedDropdown.style.display = 'none';
+        closeBreeds();
       }
     });
   }
@@ -626,7 +635,7 @@
     errDogName.classList.remove('show');
     const warning = document.getElementById('dupWarning');
     if (warning) warning.style.display = 'none';
-    if (breedDropdown) breedDropdown.style.display = 'none';
+    if (breedDropdown) closeBreeds();
     showScreen('dogForm',dog?'Изменить':'Новый питомец');
     setTimeout(()=>fDogName.focus(),100);
   }
