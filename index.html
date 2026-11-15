@@ -336,6 +336,11 @@
       <input id="fDogOwner" type="text" placeholder="Имя владельца">
       <label for="fDogNotes">Описание</label>
       <textarea id="fDogNotes" placeholder="Особенности характера, аллергии, любит/не любит…"></textarea>
+      <div id="dupWarning" style="display: none; background: rgba(255, 209, 102, 0.15); color: #ffe4a3; padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 15px; border: 1px solid rgba(255, 209, 102, 0.3); line-height: 1.4;">
+        ⚠️ <b>Такой питомец уже есть в базе!</b><br>
+        <span id="dupText" style="font-size: 12px; margin-top: 5px; display: block;"></span>
+        <br>Нажмите «Сохранить» ещё раз, если хотите добавить дубль.
+      </div>
       <div class="form-actions">
         <button id="cancelDogForm" class="ghost">Отмена</button>
         <button id="saveDogForm" class="primary">Сохранить</button>
@@ -539,6 +544,8 @@
     fDogOwner.value=dog?(dog.owner||''):'';
     fDogNotes.value=dog?(dog.notes||''):'';
     errDogName.classList.remove('show');
+    const warning = document.getElementById('dupWarning');
+    if (warning) warning.style.display = 'none';
     showScreen('dogForm',dog?'Изменить':'Новый питомец');
     setTimeout(()=>fDogName.focus(),100);
   }
@@ -551,6 +558,30 @@
     const name=fDogName.value.trim();
     if(!name){errDogName.classList.add('show');fDogName.focus();return;}
     errDogName.classList.remove('show');
+
+    const breed = fDogBreed.value.trim().toLowerCase();
+    const owner = fDogOwner.value.trim().toLowerCase();
+    const warning = document.getElementById('dupWarning');
+
+    if (!editingDogId && warning && warning.style.display === 'none') {
+      const matches = state.dogs.filter(d => 
+        d.name.trim().toLowerCase() === name.toLowerCase() &&
+        (d.breed || '').trim().toLowerCase() === breed &&
+        (d.owner || '').trim().toLowerCase() === owner
+      );
+
+      if (matches.length > 0) {
+        const info = matches.map(d => `• ${d.name} (${d.breed || 'без породы'}, ${d.owner || 'без хозяина'})`).join('<br>');
+        document.getElementById('dupText').innerHTML = info;
+        warning.style.display = 'block';
+        
+        if (warning.scrollIntoView) warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        return;
+      }
+    }
+    if (warning) warning.style.display = 'none';
+
     if(editingDogId){
       const d=findDog(editingDogId);
       if(d){d.name=name;d.breed=fDogBreed.value.trim();d.owner=fDogOwner.value.trim();d.notes=fDogNotes.value.trim();}
@@ -580,7 +611,7 @@
   editVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;const v=d.visits.find(x=>x.id===currentVisitId);if(v)openVisitForm(v);});
   deleteVisitBtn.addEventListener('click',()=>{const d=findDog(currentDogId);if(!d)return;if(!confirm('Удалить этот визит?'))return;d.visits=d.visits.filter(x=>x.id!==currentVisitId);save();showDog(d.id);});
   
-          exportBtn.addEventListener('click', async () => {
+  exportBtn.addEventListener('click', async () => {
     closeAllDropdowns();
     if (!state.dogs || state.dogs.length === 0) {
       alert('Нет данных для сохранения.');
