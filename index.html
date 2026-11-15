@@ -242,11 +242,13 @@
   
   /* Стили для кастомного списка пород */
   .custom-select-wrap { position: relative; }
-  .custom-dd-menu {
+    .custom-dd-menu {
     position: absolute; top: calc(100% + 4px); left: 0; right: 0;
     background: var(--dd-menu-bg); border: 1px solid var(--line);
     border-radius: 10px; max-height: 200px; overflow-y: auto; z-index: 100; display: none;
     box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+    overscroll-behavior: contain; /* Запрещает прокрутку страницы, когда список докручен до конца */
+  }
   }
   .custom-dd-item { padding: 12px 14px; cursor: pointer; color: var(--text); font-size: 14px; border-bottom: 1px solid var(--line); }
   .custom-dd-item:last-child { border-bottom: none; }
