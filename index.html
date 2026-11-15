@@ -336,11 +336,13 @@
       <input id="fDogOwner" type="text" placeholder="Имя владельца">
       <label for="fDogNotes">Описание</label>
       <textarea id="fDogNotes" placeholder="Особенности характера, аллергии, любит/не любит…"></textarea>
-      <div id="dupWarning" style="display: none; background: rgba(255, 209, 102, 0.15); color: #ffe4a3; padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 15px; border: 1px solid rgba(255, 209, 102, 0.3); line-height: 1.4;">
-        ⚠️ <b>Такой питомец уже есть в базе!</b><br>
-        <span id="dupText" style="font-size: 12px; margin-top: 5px; display: block;"></span>
-        <br>Нажмите «Сохранить» ещё раз, если хотите добавить дубль.
+      
+      <div id="dupWarning" style="display: none; background: var(--panel2); color: var(--text); padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-top: 15px; border: 1px solid var(--money); border-left: 4px solid var(--money); line-height: 1.5;">
+        <b style="color: var(--money);">⚠️ Такой питомец уже есть в базе!</b>
+        <div id="dupText" style="font-size: 12px; margin-top: 6px; color: var(--muted);"></div>
+        <div style="font-size: 11px; margin-top: 8px; color: var(--muted);">Нажмите «Сохранить» ещё раз, чтобы добавить дубль.</div>
       </div>
+
       <div class="form-actions">
         <button id="cancelDogForm" class="ghost">Отмена</button>
         <button id="saveDogForm" class="primary">Сохранить</button>
@@ -620,21 +622,19 @@
 
     const dataStr = JSON.stringify(state, null, 2);
 
-    // СПОСОБ 1: Системное меню "Поделиться" (самый надежный на Android)
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'Бэкап базы питомцев',
           text: dataStr
         });
-        return; // Если меню открылось и ты отправил — всё, выходим
+        return;
       } catch (err) {
-        if (err.name === 'AbortError') return; // Ты сам закрыл меню
+        if (err.name === 'AbortError') return;
         console.log('Share не сработал:', err);
       }
     }
 
-    // СПОСОБ 2: Резервное окно (если меню "Поделиться" недоступно)
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;padding:20px;display:flex;flex-direction:column;gap:15px;';
 
