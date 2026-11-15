@@ -239,6 +239,19 @@
   .field-error{color:var(--bad);font-size:12px;margin-top:4px;display:none}
   .field-error.show{display:block}
   .prefill-hint{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic}
+  
+  /* Стили для кастомного списка пород */
+  .custom-select-wrap { position: relative; }
+  .custom-dd-menu {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--dd-menu-bg); border: 1px solid var(--line);
+    border-radius: 10px; max-height: 200px; overflow-y: auto; z-index: 100; display: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+  }
+  .custom-dd-item { padding: 12px 14px; cursor: pointer; color: var(--text); font-size: 14px; border-bottom: 1px solid var(--line); }
+  .custom-dd-item:last-child { border-bottom: none; }
+  .custom-dd-item:hover, .custom-dd-item.active { background: var(--dd-hover-bg); }
+
     /* Видео-заставка */
   #splashScreen {
     position: fixed; inset: 0; z-index: 9999;
@@ -325,36 +338,13 @@
       <label for="fDogName">Кличка *</label>
       <input id="fDogName" type="text" placeholder="Например, Бублик">
       <div class="field-error" id="errDogName">Укажите кличку</div>
+      
       <label for="fDogBreed">Порода</label>
-      <input id="fDogBreed" type="text" placeholder="Шпиц, Йорк, Пудель…" list="breedSuggestions">
-            <datalist id="breedSuggestions">
-        <option value="Бигль"></option>
-        <option value="Вест-хайленд-уайт-терьер"></option>
-        <option value="Золотистый ретривер"></option>
-        <option value="Йорк"></option>
-        <option value="Китайская хохлатая"></option>
-        <option value="Кокер-спаниель"></option>
-        <option value="Корги"></option>
-        <option value="Лабрадор"></option>
-        <option value="Мальтезе"></option>
-        <option value="Миттельшнауцер"></option>
-        <option value="Мопс"></option>
-        <option value="Норвич-терьер"></option>
-        <option value="Папильон"></option>
-        <option value="Пекинес"></option>
-        <option value="Пудель"></option>
-        <option value="Русская цветная болонка"></option>
-        <option value="Самоед"></option>
-        <option value="Скотч-терьер"></option>
-        <option value="Такса"></option>
-        <option value="Французский бульдог"></option>
-        <option value="Хаски"></option>
-        <option value="Цвергшнауцер"></option>
-        <option value="Чихуахуа"></option>
-        <option value="Ши-тцу"></option>
-        <option value="Шпиц"></option>
-        <option value="Метис"></option>
-      </datalist>
+      <div class="custom-select-wrap">
+        <input id="fDogBreed" type="text" placeholder="Шпиц, Йорк, Пудель…" autocomplete="off">
+        <div id="breedDropdown" class="custom-dd-menu"></div>
+      </div>
+
       <label for="fDogOwner">Хозяин</label>
       <input id="fDogOwner" type="text" placeholder="Имя владельца">
       <label for="fDogNotes">Описание</label>
@@ -561,6 +551,43 @@
   function renderVisits(d){const visits=(d.visits||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));visitList.innerHTML='';if(!visits.length){visitEmpty.hidden=false;return;}visitEmpty.hidden=true;visits.forEach(v=>{const card=document.createElement('div');card.className='visit-card';card.dataset.id=v.id;const mmBadges=[];if(v.clipperBody)mmBadges.push(`<span class="visit-mm">корпус ${esc(v.clipperBody)} мм</span>`);if(v.clipperPaws)mmBadges.push(`<span class="visit-mm">лапы ${esc(v.clipperPaws)} мм</span>`);card.innerHTML=`<div class="visit-head"><div class="visit-date">${fmtDate(v.date)}<span class="vd-ago">· ${daysAgoText(v.date)}</span></div><div class="visit-mm-row">${mmBadges.join('')}</div></div><div class="visit-services">${esc(v.services||'Без описания')}</div><div class="visit-photos"><div class="vp ${v.photoBefore?'has':''}">${v.photoBefore?`<img src="${v.photoBefore}" alt="До">`:'Нет фото'}${v.photoBefore?'<span class="vp-lbl">До</span>':''}</div><div class="vp ${v.photoAfter?'has':''}">${v.photoAfter?`<img src="${v.photoAfter}" alt="После">`:'Нет фото'}${v.photoAfter?'<span class="vp-lbl">После</span>':''}</div></div>`;visitList.appendChild(card);});}
   visitList.addEventListener('click',e=>{const card=e.target.closest('.visit-card');if(!card)return;showVisit(card.dataset.id);});
   
+  // --- Кастомный список пород ---
+  const BREEDS_LIST = ["Бигль", "Вест-хайленд-уайт-терьер", "Золотистый ретривер", "Йорк", "Китайская хохлатая", "Кокер-спаниель", "Корги", "Лабрадор", "Мальтезе", "Миттельшнауцер", "Мопс", "Норвич-терьер", "Папильон", "Пекинес", "Пудель", "Русская цветная болонка", "Самоед", "Скотч-терьер", "Такса", "Французский бульдог", "Хаски", "Цвергшнауцер", "Чихуахуа", "Ши-тцу", "Шпиц", "Метис"];
+  
+  const breedInput = document.getElementById('fDogBreed');
+  const breedDropdown = document.getElementById('breedDropdown');
+
+  function renderBreeds(filter = '') {
+    const lowerFilter = filter.toLowerCase();
+    const filtered = BREEDS_LIST.filter(b => b.toLowerCase().includes(lowerFilter));
+    if (filtered.length === 0) {
+      breedDropdown.style.display = 'none';
+      return;
+    }
+    breedDropdown.innerHTML = filtered.map(b => `<div class="custom-dd-item">${b}</div>`).join('');
+    
+    Array.from(breedDropdown.children).forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        breedInput.value = item.textContent;
+        breedDropdown.style.display = 'none';
+      });
+    });
+    breedDropdown.style.display = 'block';
+  }
+
+  if (breedInput) {
+    breedInput.addEventListener('focus', () => renderBreeds(breedInput.value));
+    breedInput.addEventListener('input', () => renderBreeds(breedInput.value));
+    
+    document.addEventListener('click', (e) => {
+      if (!breedInput.contains(e.target) && !breedDropdown.contains(e.target)) {
+        breedDropdown.style.display = 'none';
+      }
+    });
+  }
+  // --------------------------------
+
   function openDogForm(dog){
     editingDogId=dog?dog.id:null;
     dogFormTitle.textContent=dog?'Изменить питомца':'Новый питомец';
@@ -571,6 +598,7 @@
     errDogName.classList.remove('show');
     const warning = document.getElementById('dupWarning');
     if (warning) warning.style.display = 'none';
+    if (breedDropdown) breedDropdown.style.display = 'none';
     showScreen('dogForm',dog?'Изменить':'Новый питомец');
     setTimeout(()=>fDogName.focus(),100);
   }
