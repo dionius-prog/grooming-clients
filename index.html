@@ -573,11 +573,28 @@
         breedDropdown.style.display = 'none';
       });
     });
+
+    // Умное позиционирование: если поле внизу экрана, открываем список вверх
+    const rect = breedInput.getBoundingClientRect();
+    if (rect.top > window.innerHeight / 2) {
+      breedDropdown.style.top = 'auto';
+      breedDropdown.style.bottom = 'calc(100% + 4px)';
+    } else {
+      breedDropdown.style.top = 'calc(100% + 4px)';
+      breedDropdown.style.bottom = 'auto';
+    }
+
     breedDropdown.style.display = 'block';
   }
 
   if (breedInput) {
-    breedInput.addEventListener('focus', () => renderBreeds(breedInput.value));
+    breedInput.addEventListener('focus', () => {
+      renderBreeds(breedInput.value);
+      // Прокручиваем экран, чтобы поле было по центру и клава не мешала
+      setTimeout(() => {
+        breedInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+    });
     breedInput.addEventListener('input', () => renderBreeds(breedInput.value));
     
     document.addEventListener('click', (e) => {
