@@ -252,6 +252,9 @@
   .custom-dd-item:last-child { border-bottom: none; }
   .custom-dd-item:hover, .custom-dd-item.active { background: var(--dd-hover-bg); }
 
+  /* Отступы для прокрутки, чтобы поле не пряталось под клавиатурой */
+  #fDogBreed { scroll-margin-top: 150px; scroll-margin-bottom: 150px; }
+
     /* Видео-заставка */
   #splashScreen {
     position: fixed; inset: 0; z-index: 9999;
@@ -571,12 +574,17 @@
         e.preventDefault();
         breedInput.value = item.textContent;
         breedDropdown.style.display = 'none';
+        breedInput.blur(); // Скрываем клавиатуру после выбора
       });
     });
 
-    // Умное позиционирование: если поле внизу экрана, открываем список вверх
+    // Умное позиционирование с учетом клавиатуры
     const rect = breedInput.getBoundingClientRect();
-    if (rect.top > window.innerHeight / 2) {
+    // visualViewport.height учитывает клавиатуру, innerHeight - нет
+    const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    
+    // Если поле находится в нижней половине видимой области - открываем вверх
+    if (rect.top > viewportHeight / 2) {
       breedDropdown.style.top = 'auto';
       breedDropdown.style.bottom = 'calc(100% + 4px)';
     } else {
@@ -589,12 +597,14 @@
 
   if (breedInput) {
     breedInput.addEventListener('focus', () => {
-      renderBreeds(breedInput.value);
-      // Прокручиваем экран, чтобы поле было по центру и клава не мешала
+      // Ждем 350мс, пока клавиатура вылезет и изменит высоту экрана
       setTimeout(() => {
+        renderBreeds(breedInput.value);
+        // Прокручиваем так, чтобы поле было по центру
         breedInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 150);
+      }, 350);
     });
+
     breedInput.addEventListener('input', () => renderBreeds(breedInput.value));
     
     document.addEventListener('click', (e) => {
